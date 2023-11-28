@@ -1,7 +1,7 @@
 import { Customer } from '@/domain/entities/Customer';
 
 describe('Customer Entity', () => {
-  it('can be instantiated', () => {
+  it('Can be instantiated', () => {
     const customer = new Customer({
       firstName: 'John',
       lastName: 'Doe',
@@ -14,7 +14,7 @@ describe('Customer Entity', () => {
     expect(customer).toBeInstanceOf(Customer);
   });
 
-  it('has accessible properties', () => {
+  it('Has accessible reactive properties', () => {
     const customer = new Customer({
       firstName: 'John',
       lastName: 'Doe',
@@ -24,7 +24,7 @@ describe('Customer Entity', () => {
       bankAccountNumber: '1234567890123456',
     });
 
-    expect(customer.firstName).toBe('John');
-    expect(customer.lastName).toBe('Doe');
+    expect(customer.firstName.value).toBe('John');
+    expect(customer.lastName.value).toBe('Doe');
   });
 });
