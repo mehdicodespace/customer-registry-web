@@ -12,12 +12,12 @@
         class="text-gray-700 uppercase bg-gray-100 font-bold dark:bg-gray-700 dark:text-gray-400"
       >
         <tr>
-          <th scope="col" class="px-6 py-3">Full Name</th>
-          <th scope="col" class="px-6 py-3">Email</th>
-          <th scope="col" class="px-6 py-3">Phone Number</th>
-          <th scope="col" class="px-6 py-3">Date of Birth</th>
-          <th scope="col" class="px-6 py-3">Bank Account Number</th>
-          <th scope="col" class="px-6 py-3">Action</th>
+          <th scope="col" class="px-6 py-4">Full Name</th>
+          <th scope="col" class="px-6 py-4">Email</th>
+          <th scope="col" class="px-6 py-4">Phone Number</th>
+          <th scope="col" class="px-6 py-4">Date of Birth</th>
+          <th scope="col" class="px-6 py-4">Bank Account Number</th>
+          <th scope="col" class="px-6 py-4">Action</th>
         </tr>
       </thead>
       <tbody>
