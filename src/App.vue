@@ -7,7 +7,7 @@
 
   <teleport to="body">
     <div
-      class="bg-gray-800/90 fixed w-full h-full top-0 left-0 z-10 cursor-pointer"
+      class="bg-gray-800/90 fixed w-full h-full top-0 left-0 z-10 cursor-pointer hidden"
     ></div>
   </teleport>
 </template>
