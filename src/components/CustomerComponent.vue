@@ -1,5 +1,5 @@
 <template>
-  <div>Customer Component</div>
+  <div class="bg-red-500">Customer Component</div>
 </template>
 
 <script lang="ts">
