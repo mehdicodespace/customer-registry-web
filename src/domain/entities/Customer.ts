@@ -1,5 +1,6 @@
 import { ref, Ref } from 'vue';
 export class Customer {
+  public id: string;
   public firstName: Ref<string>;
   public lastName: Ref<string>;
   public dateOfBirth: Ref<Date>;
@@ -22,6 +23,7 @@ export class Customer {
     email: string;
     bankAccountNumber: string;
   }) {
+    this.id = '123';
     this.firstName = ref(firstName);
     this.lastName = ref(lastName);
     this.dateOfBirth = ref(dateOfBirth);
