@@ -1,10 +1,11 @@
 <template>
-  <h1 class="bg-red-500 text-5xl">TypeScript Implementation</h1>
-  <customer-list></customer-list>
+  <section class="bg-dark-500">
+    <customer-list></customer-list>
+  </section>
 </template>
 
 <script setup lang="ts">
-import CustomerList from '@/components/Customer/CustomerList.vue';
+import CustomerList from "@/components/Customer/CustomerList.vue";
 </script>
 
 <style></style>
