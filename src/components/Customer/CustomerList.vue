@@ -2,9 +2,16 @@
   <div
     class="relative overflow-x-auto w-11/12 bg-gray-200 mx-auto mt-12 sm:rounded-lg py-12 px-12"
   >
-    <h2 class="text-gray-700 font-bold text-4xl text-center mb-12">
-      Customers List
-    </h2>
+    <div class="flex items-center gap-8 mb-12 justify-center">
+      <h2 class="text-gray-700 font-bold text-4xl">Customers List</h2>
+      <button
+        @click="updateShowModal(true)"
+        type="button"
+        class="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-sm px-6 py-3.5 text-center"
+      >
+        Create new customer
+      </button>
+    </div>
     <table
       class="w-full shadow-md text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400"
     >
@@ -59,9 +66,7 @@
             <!-- Modal toggle -->
             <a
               href="#"
-              type="button"
-              data-modal-target="editUserModal"
-              data-modal-show="editUserModal"
+              @click.prevent="editCustomer(customer)"
               class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
               >Edit user</a
             >
@@ -69,11 +74,21 @@
         </tr>
       </tbody>
     </table>
+
+    <customer-modal
+      :title="modalTitle"
+      :show-modal="showModal"
+      :customer="modalCustomer"
+      @updateCustomer="updateModalCustomer"
+      @updateShowModal="updateShowModal"
+    ></customer-modal>
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive } from "vue";
+import CustomerModal from "@/components/Customer/CustomerModal.vue";
+
+import { reactive, ref } from "vue";
 import { Customer } from "@/domain/entities/Customer";
 import { customerRepository } from "@/domain/repositories/CustomerRepository";
 
@@ -84,9 +99,30 @@ const customer1 = reactive(
 const customer2 = reactive(
   new Customer({ firstName: "Mason", lastName: "Chase" })
 );
-
 const addCustomer = (customer) => {
   customerRepository.addCustomer(customer);
+};
+
+let modalCustomer = reactive(new Customer({}));
+const showModal = ref(false);
+const modalTitle = ref("Create new customer");
+
+const updateModalCustomer = ({ key, value }) => {
+  modalCustomer[key] = value;
+};
+
+const updateShowModal = (status) => {
+  showModal.value = status;
+  if (status === false) {
+    modalCustomer = reactive(new Customer({}));
+    modalTitle.value = "Create new customer";
+  }
+};
+
+const editCustomer = (customer) => {
+  modalCustomer = { ...customer };
+  modalTitle.value = "Edit customer details";
+  showModal.value = true;
 };
 
 addCustomer(customer1);

@@ -1,29 +1,27 @@
-import { ref, Ref } from 'vue';
+import { ref, Ref } from "vue";
 export class Customer {
-  public id: string;
   public firstName: Ref<string>;
   public lastName: Ref<string>;
-  public dateOfBirth: Ref<Date>;
+  public dateOfBirth: Ref<string>;
   public phoneNumber: Ref<string>;
   public email: Ref<string>;
   public bankAccountNumber: Ref<string>;
 
   constructor({
-    firstName = '',
-    lastName = '',
-    dateOfBirth = new Date(),
-    phoneNumber = '',
-    email = '',
-    bankAccountNumber = '',
+    firstName = "",
+    lastName = "",
+    dateOfBirth = "",
+    phoneNumber = "",
+    email = "",
+    bankAccountNumber = "",
   }: {
     firstName: string;
     lastName: string;
-    dateOfBirth: Date;
+    dateOfBirth: string;
     phoneNumber: string;
     email: string;
     bankAccountNumber: string;
   }) {
-    this.id = '123';
     this.firstName = ref(firstName);
     this.lastName = ref(lastName);
     this.dateOfBirth = ref(dateOfBirth);
