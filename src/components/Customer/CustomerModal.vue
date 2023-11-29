@@ -60,6 +60,7 @@
             <div class="grid grid-cols-6 gap-6">
               <template v-for="(value, key) in customer" :key="key">
                 <input-field
+                  v-if="key !== '_uuid'"
                   :modelValue="customer[key]"
                   :label="key"
                   @update:modelValue="updateCustomerValue(key, $event)"
@@ -117,7 +118,7 @@ const updateCustomerValue = (key: string, value: string) => {
 let validationErrors = reactive({});
 
 Object.keys(props.customer).forEach((fieldName) => {
-  validationErrors[fieldName] = null;
+  if (fieldName !== "_uuid") validationErrors[fieldName] = null;
 });
 
 const showModalStatusChange = (status: boolean) => {

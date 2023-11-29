@@ -1,11 +1,11 @@
 import { mount } from "@vue/test-utils";
-import CustomerList from "@/components/Customer/CustomerList.vue";
+import CustomersList from "@/components/Customer/CustomersList.vue";
 import { enableFetchMocks } from "jest-fetch-mock";
 enableFetchMocks();
 
-describe("CustomerList", () => {
+describe("CustomersList", () => {
   it("renders without crashing", () => {
-    const wrapper = mount(CustomerList);
+    const wrapper = mount(CustomersList);
     expect(wrapper.exists()).toBe(true);
   });
 });

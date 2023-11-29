@@ -1,11 +1,11 @@
 <template>
   <section class="bg-dark-500">
-    <customer-list></customer-list>
+    <customers-list></customers-list>
   </section>
 </template>
 
 <script setup lang="ts">
-import CustomerList from "@/components/Customer/CustomerList.vue";
+import CustomersList from "@/components/Customer/CustomersList.vue";
 </script>
 
 <style></style>

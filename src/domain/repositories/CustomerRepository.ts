@@ -7,7 +7,8 @@ class CustomerRepository {
   private customers: Ref<Customer[]> = ref([]);
   private localStorageService: LocalStorageService;
   private restApiService: typeof RestApiService;
-  public loading: Ref<boolean> = ref(false);
+  public getCustomersLoading: Ref<boolean> = ref(false);
+  public modalLoading: Ref<boolean> = ref(false);
 
   constructor() {
     this.localStorageService = new LocalStorageService();
@@ -16,25 +17,29 @@ class CustomerRepository {
   }
 
   private async init(): Promise<void> {
-    this.customers.value = this.localStorageService.getAllCustomers();
-    this.loading.value = true;
+    this.getCustomersLoading.value = true;
 
     try {
+      // Fetch customers from API
       const apiCustomers = await this.restApiService.getAllCustomers();
+
+      // Filter out customers that already exist in local storage
       const uniqueApiCustomers = apiCustomers.filter(
-        (apiCustomer: Customer) =>
-          !this.customers.value.some(
-            (localCustomer) => localCustomer._uuid === apiCustomer._uuid
-          )
+        (apiCustomer: Customer) => {
+          return !this.isUnique(apiCustomer);
+        }
       );
+
+      // Update the local storage with unique customers
       this.customers.value = [...this.customers.value, ...uniqueApiCustomers];
+      this.localStorageService.updateLocalStorage(this.customers.value);
     } finally {
-      this.loading.value = false;
+      this.getCustomersLoading.value = false;
     }
   }
 
   async addCustomer(customer: Customer): Promise<void> {
-    this.loading.value = true;
+    this.modalLoading.value = true;
 
     try {
       if (this.isUnique(customer)) {
@@ -49,12 +54,12 @@ class CustomerRepository {
       console.error("Error adding customer:", error);
       throw error;
     } finally {
-      this.loading.value = false;
+      this.modalLoading.value = false;
     }
   }
 
   async removeCustomer(customer: Customer): Promise<void> {
-    this.loading.value = true;
+    this.modalLoading.value = true;
 
     try {
       await this.restApiService.deleteCustomer(customer._uuid.value);
@@ -66,12 +71,12 @@ class CustomerRepository {
       console.error("Error removing customer:", error);
       throw error;
     } finally {
-      this.loading.value = false;
+      this.modalLoading.value = false;
     }
   }
 
   async updateCustomer(updatedCustomer: Customer): Promise<void> {
-    this.loading.value = true;
+    this.modalLoading.value = true;
 
     try {
       const returnedCustomer =
@@ -87,7 +92,7 @@ class CustomerRepository {
       console.error("Error updating customer:", error);
       throw error;
     } finally {
-      this.loading.value = false;
+      this.modalLoading.value = false;
     }
   }
 
@@ -100,7 +105,8 @@ class CustomerRepository {
       (c) =>
         c.firstName.value === customer.firstName.value &&
         c.lastName.value === customer.lastName.value &&
-        c.dateOfBirth.value === customer.dateOfBirth.value
+        c.dateOfBirth.value === customer.dateOfBirth.value &&
+        c.email.value === customer.email.value
     );
   }
 }
