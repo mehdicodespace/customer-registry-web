@@ -1,4 +1,3 @@
-// validators.spec.ts
 import {
   isValidPhoneNumber,
   isValidEmail,
@@ -9,7 +8,7 @@ describe("Validators", () => {
   describe("isValidPhoneNumber", () => {
     it("returns true for a valid phone number", () => {
       // Test valid phone number
-      const result = isValidPhoneNumber("1234567890");
+      const result = isValidPhoneNumber("+16469804741");
       expect(result).toBe(true);
     });
 
