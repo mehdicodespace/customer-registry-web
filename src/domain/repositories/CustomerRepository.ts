@@ -1,4 +1,4 @@
-import { ref, Ref } from "vue";
+import { ref, Ref, unref } from "vue";
 import { Customer } from "@/domain/entities/Customer";
 import { LocalStorageService } from "@/services/LocalStorageService";
 import RestApiService from "@/services/RestApiService";
@@ -17,22 +17,19 @@ class CustomerRepository {
   }
 
   private async init(): Promise<void> {
+    this.customers.value = this.localStorageService.getAllCustomers();
     this.getCustomersLoading.value = true;
 
     try {
-      // Fetch customers from API
       const apiCustomers = await this.restApiService.getAllCustomers();
-
-      // Filter out customers that already exist in local storage
       const uniqueApiCustomers = apiCustomers.filter(
-        (apiCustomer: Customer) => {
-          return !this.isUnique(apiCustomer);
-        }
+        (apiCustomer: Customer) =>
+          !this.customers.value.some(
+            (localCustomer) => localCustomer._uuid === apiCustomer._uuid
+          )
       );
-
-      // Update the local storage with unique customers
-      this.customers.value = [...this.customers.value, ...uniqueApiCustomers];
-      this.localStorageService.updateLocalStorage(this.customers.value);
+      this.customers.value = [...uniqueApiCustomers];
+      this.localStorageService.updateLocalStorage(this.customers.value); // Update local storage
     } finally {
       this.getCustomersLoading.value = false;
     }
@@ -46,32 +43,27 @@ class CustomerRepository {
         const createdCustomer =
           await this.restApiService.createCustomer(customer);
         this.customers.value.push(createdCustomer);
-        this.localStorageService.updateLocalStorage(this.customers.value);
+        this.localStorageService.updateLocalStorage(this.customers.value); // Update local storage
       } else {
-        console.error("Error adding customer: Duplicate customer found");
+        throw new Error();
       }
     } catch (error) {
-      console.error("Error adding customer:", error);
-      throw error;
+      throw new Error("Error adding customer: Duplicate customer found");
     } finally {
       this.modalLoading.value = false;
     }
   }
 
   async removeCustomer(customer: Customer): Promise<void> {
-    this.modalLoading.value = true;
-
     try {
-      await this.restApiService.deleteCustomer(customer._uuid.value);
+      await this.restApiService.deleteCustomer(unref(customer._uuid));
       this.customers.value = this.customers.value.filter(
         (c) => c._uuid.value !== customer._uuid.value
       );
-      this.localStorageService.updateLocalStorage(this.customers.value);
+      this.localStorageService.updateLocalStorage(this.customers.value); // Update local storage
     } catch (error) {
-      console.error("Error removing customer:", error);
+      throw new Error("Error removing customer");
       throw error;
-    } finally {
-      this.modalLoading.value = false;
     }
   }
 
@@ -79,17 +71,18 @@ class CustomerRepository {
     this.modalLoading.value = true;
 
     try {
-      const returnedCustomer =
-        await this.restApiService.updateCustomer(updatedCustomer);
       const index = this.customers.value.findIndex(
-        (c) => c._uuid.value === returnedCustomer._uuid.value
+        (c) => unref(c._uuid) === unref(updatedCustomer._uuid)
       );
+
       if (index !== -1) {
-        Object.assign(this.customers.value[index], returnedCustomer);
-        this.localStorageService.updateLocalStorage(this.customers.value);
+        Object.assign(this.customers.value[index], updatedCustomer);
+        this.localStorageService.updateLocalStorage(this.customers.value); // Update local storage
       }
+
+      await this.restApiService.updateCustomer(updatedCustomer);
     } catch (error) {
-      console.error("Error updating customer:", error);
+      throw new Error("Error updating customer");
       throw error;
     } finally {
       this.modalLoading.value = false;
@@ -101,12 +94,13 @@ class CustomerRepository {
   }
 
   private isUnique(customer: Customer): boolean {
-    return !this.customers.value.some(
-      (c) =>
-        c.firstName.value === customer.firstName.value &&
-        c.lastName.value === customer.lastName.value &&
-        c.dateOfBirth.value === customer.dateOfBirth.value &&
-        c.email.value === customer.email.value
+    return (
+      !this.customers.value.some(
+        (c) =>
+          c.firstName === customer.firstName &&
+          c.lastName === customer.lastName &&
+          c.dateOfBirth === customer.dateOfBirth
+      ) && !this.customers.value.some((c) => c.email === customer.email)
     );
   }
 }

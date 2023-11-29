@@ -25,7 +25,7 @@
           <th scope="col" class="px-6 py-4">Phone Number</th>
           <th scope="col" class="px-6 py-4">Date of Birth</th>
           <th scope="col" class="px-6 py-4">Bank Account Number</th>
-          <th scope="col" class="px-6 py-4">Action</th>
+          <th scope="col" class="px-6 py-4">Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -65,17 +65,30 @@
           </td>
           <td class="px-6 py-4">
             <!-- Modal toggle -->
-            <a
-              href="#"
-              @click.prevent="showEditCustomerModal(customer)"
-              class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-              >Edit user</a
-            >
+            <div class="flex gap-4">
+              <a
+                href="#"
+                @click.prevent="showEditCustomerModal(customer)"
+                class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                >Edit Customer</a
+              >
+
+              <a
+                href="#"
+                @click.prevent="customerRepository.removeCustomer(customer)"
+                class="font-medium text-red-600 dark:text-red-500 hover:underline"
+                >Delete</a
+              >
+            </div>
           </td>
         </tr>
       </tbody>
     </table>
-    <div role="status" class="bg-gray-300 py-12 font-medium">
+    <div
+      v-if="allCustomers.length === 0"
+      role="status"
+      class="bg-gray-300 py-12 font-medium"
+    >
       <div
         class="flex flex-col gap-2 text-lg items-center justify-center"
         v-if="getCustomersLoading"
@@ -121,10 +134,6 @@ import CustomerModal from "@/components/Customer/CustomerModal.vue";
 import { reactive, ref } from "vue";
 import { Customer } from "@/domain/entities/Customer";
 import { customerRepository } from "@/domain/repositories/CustomerRepository";
-
-// const addCustomer = (customer) => {
-//   customerRepository.addCustomer(customer);
-// };
 
 let modalCustomer = reactive(new Customer({}));
 const showModal = ref(false);
