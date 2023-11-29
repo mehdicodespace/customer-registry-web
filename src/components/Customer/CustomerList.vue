@@ -37,7 +37,7 @@
             scope="row"
             class="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white"
           >
-            <svg class="w-10 h-10 text-gray-400 select-none text-main-orange">
+            <svg class="w-10 h-10 text-gray-400 select-none">
               <use :href="`/icons.svg#user`"></use>
             </svg>
             <div class="ps-3">
@@ -66,7 +66,7 @@
             <!-- Modal toggle -->
             <a
               href="#"
-              @click.prevent="editCustomer(customer)"
+              @click.prevent="showEditCustomerModal(customer)"
               class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
               >Edit user</a
             >
@@ -76,7 +76,8 @@
     </table>
 
     <customer-modal
-      :title="modalTitle"
+      v-if="showModal"
+      :type="modalType"
       :show-modal="showModal"
       :customer="modalCustomer"
       @updateCustomer="updateModalCustomer"
@@ -103,9 +104,12 @@ const addCustomer = (customer) => {
   customerRepository.addCustomer(customer);
 };
 
+addCustomer(customer1);
+addCustomer(customer2);
+
 let modalCustomer = reactive(new Customer({}));
 const showModal = ref(false);
-const modalTitle = ref("Create new customer");
+const modalType = ref("create");
 
 const updateModalCustomer = ({ key, value }) => {
   modalCustomer[key] = value;
@@ -115,18 +119,15 @@ const updateShowModal = (status) => {
   showModal.value = status;
   if (status === false) {
     modalCustomer = reactive(new Customer({}));
-    modalTitle.value = "Create new customer";
+    modalType.value = "create";
   }
 };
 
-const editCustomer = (customer) => {
+const showEditCustomerModal = (customer) => {
   modalCustomer = { ...customer };
-  modalTitle.value = "Edit customer details";
+  modalType.value = "edit";
   showModal.value = true;
 };
-
-addCustomer(customer1);
-addCustomer(customer2);
 
 const allCustomers = customerRepository.getAllCustomers();
 </script>
