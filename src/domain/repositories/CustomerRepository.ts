@@ -58,7 +58,7 @@ class CustomerRepository {
     try {
       await this.restApiService.deleteCustomer(unref(customer._uuid));
       this.customers.value = this.customers.value.filter(
-        (c) => c._uuid.value !== customer._uuid.value
+        (c) => c._uuid !== customer._uuid
       );
       this.localStorageService.updateLocalStorage(this.customers.value); // Update local storage
     } catch (error) {
