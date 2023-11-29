@@ -81,7 +81,6 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, defineEmits } from "vue";
 import InputField from "@/components/Shared/InputField.vue";
 
 const emit = defineEmits(["updateCustomer", "updateShowModal"]);
