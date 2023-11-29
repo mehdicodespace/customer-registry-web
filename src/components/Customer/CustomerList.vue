@@ -30,7 +30,7 @@
       <tbody>
         <tr
           v-for="customer in allCustomers"
-          :key="`${customer.firstName} ${customer.lastName}`"
+          :key="customer.fullName()"
           class="bg-white dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
         >
           <td
@@ -42,7 +42,7 @@
             </svg>
             <div class="ps-3">
               <div class="text-base font-semibold">
-                {{ `${customer.firstName} ${customer.lastName}` }}
+                {{ customer.fullName() }}
               </div>
             </div>
           </td>

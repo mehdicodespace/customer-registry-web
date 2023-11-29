@@ -29,4 +29,8 @@ export class Customer {
     this.email = ref(email);
     this.bankAccountNumber = ref(bankAccountNumber);
   }
+
+  fullName(): string {
+    return `${this.firstName} ${this.lastName}`;
+  }
 }
