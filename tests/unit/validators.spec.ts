@@ -4,9 +4,6 @@ import {
   isValidBankAccountNumber,
 } from "@/utils/validators";
 
-import { enableFetchMocks } from "jest-fetch-mock";
-enableFetchMocks();
-
 describe("Validators", () => {
   describe("isValidPhoneNumber", () => {
     it("returns true for a valid phone number", () => {

@@ -1,6 +1,4 @@
 import { Customer } from "@/domain/entities/Customer";
-import { enableFetchMocks } from "jest-fetch-mock";
-enableFetchMocks();
 
 describe("Customer Entity", () => {
   it("Can be instantiated", () => {
