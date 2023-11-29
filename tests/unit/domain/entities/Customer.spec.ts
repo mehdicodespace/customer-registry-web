@@ -1,8 +1,11 @@
 import { Customer } from "@/domain/entities/Customer";
+import { enableFetchMocks } from "jest-fetch-mock";
+enableFetchMocks();
 
 describe("Customer Entity", () => {
   it("Can be instantiated", () => {
     const customer = new Customer({
+      _uuid: "",
       firstName: "John",
       lastName: "Doe",
       dateOfBirth: "1990-01-01",
@@ -16,6 +19,7 @@ describe("Customer Entity", () => {
 
   it("Has accessible reactive properties", () => {
     const customer = new Customer({
+      _uuid: "",
       firstName: "John",
       lastName: "Doe",
       dateOfBirth: "1990-01-01",

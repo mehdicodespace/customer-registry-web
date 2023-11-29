@@ -1,4 +1,6 @@
 import { ref } from "vue";
+import { enableFetchMocks } from "jest-fetch-mock";
+enableFetchMocks();
 import { Customer } from "@/domain/entities/Customer";
 import { customerRepository } from "@/domain/repositories/CustomerRepository";
 
@@ -11,6 +13,7 @@ describe("CustomerRepository", () => {
   describe("addCustomer", () => {
     it("adds a customer to the repository", () => {
       const customer = new Customer({
+        _uuid: "",
         firstName: "John",
         lastName: "Doe",
         dateOfBirth: "1990-01-01",
@@ -24,6 +27,7 @@ describe("CustomerRepository", () => {
       // Check if the customer is added
       expect(customerRepository.getAllCustomers().value).toContainEqual(
         expect.objectContaining({
+          _uuid: "",
           firstName: "John",
           lastName: "Doe",
           dateOfBirth: "1990-01-01",
@@ -38,6 +42,7 @@ describe("CustomerRepository", () => {
   describe("getAllCustomers", () => {
     it("returns all customers in the repository", () => {
       const customer1 = new Customer({
+        _uuid: "",
         firstName: "John",
         lastName: "Doe",
         dateOfBirth: "1990-01-01",
@@ -47,6 +52,7 @@ describe("CustomerRepository", () => {
       });
 
       const customer2 = new Customer({
+        _uuid: "",
         firstName: "Jane",
         lastName: "Doe",
         dateOfBirth: "1995-01-01",
@@ -63,6 +69,7 @@ describe("CustomerRepository", () => {
       // Check if all customers are returned
       expect(allCustomers).toContainEqual(
         expect.objectContaining({
+          _uuid: "",
           firstName: "John",
           lastName: "Doe",
           dateOfBirth: "1990-01-01",
@@ -74,6 +81,7 @@ describe("CustomerRepository", () => {
 
       expect(allCustomers).toContainEqual(
         expect.objectContaining({
+          _uuid: "",
           firstName: "Jane",
           lastName: "Doe",
           dateOfBirth: "1995-01-01",
