@@ -19,11 +19,11 @@ Vue 3, TypeScript, Vue CLI, Tailwind CSS, Jest, and `libphonenumber-js`.
 
 ## Run it locally
 
-Use Node.js 20 or 22 and npm. Install dependencies, copy `.env.example` to `.env.local`, then add your API key to that file.
+Use Node.js 20 or 22 and npm. Install dependencies, copy `.env.example` to `.env`, then add your API key to that file.
 
 ```sh
 npm ci
-cp .env.example .env.local
+cp .env.example .env
 npm run serve
 ```
 

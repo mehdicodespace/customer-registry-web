@@ -5,7 +5,7 @@ const API_KEY = process.env.VUE_APP_API_KEY;
 
 const getHeaders = () => {
   if (!API_BASE_URL || !API_KEY) {
-    throw new Error("API configuration is missing. Set the VUE_APP_API_* variables in .env.local.");
+    throw new Error("API configuration is missing. Set the VUE_APP_API_* variables in .env.");
   }
   return {
   "Content-Type": "application/json",
