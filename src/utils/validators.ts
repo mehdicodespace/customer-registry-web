@@ -14,19 +14,5 @@ export function isValidEmail(email: string): boolean {
 }
 
 export function isValidBankAccountNumber(bankAccountNumber: string): boolean {
-  // Basic validation for a bank account number
-  const digitRegex = /\d/;
-
-  // Check if the string contains at least one digit
-  if (!digitRegex.test(bankAccountNumber)) {
-    return false;
-  }
-
-  // ensure a specific length range
-  const minLength = 8;
-  const maxLength = 20;
-
-  const length = bankAccountNumber.length;
-
-  return length >= minLength && length <= maxLength;
+  return /^\d{8,20}$/.test(bankAccountNumber);
 }

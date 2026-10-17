@@ -121,7 +121,7 @@
       <div v-else class="mx-auto flex max-w-md flex-col items-center">
         <span class="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-2xl text-blue-600" aria-hidden="true">＋</span>
         <h2 class="text-lg font-semibold text-slate-900">No customers yet</h2>
-        <p class="mt-2 text-sm leading-6 text-slate-500">Add your first customer to start building your directory. Your records will be saved in this browser.</p>
+        <p class="mt-2 text-sm leading-6 text-slate-500">Add your first customer to start building your directory. Your records are saved to your account.</p>
         <button @click="updateShowModal(true)" type="button" class="mt-6 rounded-lg bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-200">Add your first customer</button>
       </div>
     </div>

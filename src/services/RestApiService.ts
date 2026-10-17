@@ -1,26 +1,7 @@
 import { Customer } from "@/domain/entities/Customer";
+import AuthService from "@/services/AuthService";
 
-const API_BASE_URL = process.env.VUE_APP_API_BASE_URL;
-const API_KEY = process.env.VUE_APP_API_KEY;
-
-const getHeaders = () => {
-  if (!API_BASE_URL || !API_KEY) {
-    throw new Error("API configuration is missing. Set the VUE_APP_API_* variables in .env.");
-  }
-  return {
-  "Content-Type": "application/json",
-  Authorization: `Bearer ${API_KEY}`,
-  };
-};
-
-type CreateCustomerRequest = Pick<
-  Customer,
-  "firstName" | "lastName" | "dateOfBirth" | "phoneNumber" | "email" | "bankAccountNumber"
->;
-
-const handleError = (error: Error): never => {
-  throw error;
-};
+const API_BASE_URL = process.env.VUE_APP_API_BASE_URL?.replace(/\/$/, "");
 
 interface ApiCustomer {
   _uuid: string;
@@ -37,114 +18,82 @@ interface ApiResponse<T> {
   error?: string;
 }
 
-const mapApiToCustomer = (data: ApiCustomer): Customer => {
-  return new Customer({
-    _uuid: data._uuid,
-    firstName: data.firstName,
-    lastName: data.lastName,
-    dateOfBirth: data.dateOfBirth,
-    phoneNumber: data.phoneNumber,
-    email: data.email,
-    bankAccountNumber: data.bankAccountNumber,
+type CustomerInput = Pick<
+  Customer,
+  "firstName" | "lastName" | "dateOfBirth" | "phoneNumber" | "email" | "bankAccountNumber"
+>;
+
+const request = async <T>(path: string, init: RequestInit = {}): Promise<T> => {
+  if (!API_BASE_URL) {
+    throw new Error("Set VUE_APP_API_BASE_URL in the frontend .env file.");
+  }
+  const token = AuthService.getToken();
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    ...init,
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...init.headers,
+    },
   });
+
+  if (response.status === 204) return undefined as unknown as T;
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.error || "The request could not be completed.");
+  return data as T;
 };
+
+const mapApiToCustomer = (customer: ApiCustomer): Customer =>
+  new Customer({
+    _uuid: customer._uuid,
+    firstName: customer.firstName,
+    lastName: customer.lastName,
+    dateOfBirth: customer.dateOfBirth,
+    phoneNumber: customer.phoneNumber,
+    email: customer.email,
+    bankAccountNumber: customer.bankAccountNumber,
+  });
 
 const RestApiService = {
-  createCustomer: async (customer: Customer): Promise<Customer> => {
-    try {
-      const requestData: CreateCustomerRequest = {
-        firstName: customer.firstName,
-        lastName: customer.lastName,
-        dateOfBirth: customer.dateOfBirth,
-        phoneNumber: customer.phoneNumber,
-        email: customer.email,
-        bankAccountNumber: customer.bankAccountNumber,
-      };
-
-      const response = await fetch(`${API_BASE_URL}/customer`, {
-        method: "POST",
-        headers: getHeaders(),
-        body: JSON.stringify([requestData]),
-      });
-
-      const data = (await response.json()) as ApiResponse<ApiCustomer>;
-
-      if (!response.ok) {
-        throw new Error(data.error || "Could not create customer.");
-      }
-
-      return mapApiToCustomer(data.items[0]);
-    } catch (error: unknown) {
-      return handleError(error as Error);
-    }
+  async createCustomer(customer: Customer): Promise<Customer> {
+    const data = await request<ApiResponse<ApiCustomer>>("/customers", {
+      method: "POST",
+      body: JSON.stringify(customerInput(customer)),
+    });
+    return mapApiToCustomer(data.items[0]);
   },
 
-  getAllCustomers: async (): Promise<Customer[]> => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/customer`, { headers: getHeaders() });
-      const data = (await response.json()) as ApiResponse<ApiCustomer>;
-
-      if (!response.ok) {
-        throw new Error(data.error || "Could not load customers.");
-      }
-
-      return data.items.map(mapApiToCustomer);
-    } catch (error: unknown) {
-      return handleError(error as Error);
-    }
+  async getAllCustomers(): Promise<Customer[]> {
+    const data = await request<ApiResponse<ApiCustomer>>("/customers");
+    return data.items.map(mapApiToCustomer);
   },
 
-  updateCustomer: async (customer: Customer) => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/customer`, {
-        method: "PUT",
-        headers: getHeaders(),
-        body: JSON.stringify([customer]),
-      });
-
-      const data = (await response.json()) as ApiResponse<ApiCustomer>;
-
-      if (!response.ok) {
-        throw new Error(data.error || "Could not update customer.");
-      }
-    } catch (error: unknown) {
-      return handleError(error as Error);
-    }
+  async updateCustomer(customer: Customer): Promise<void> {
+    await request<ApiResponse<ApiCustomer>>(`/customers/${customer._uuid}`, {
+      method: "PUT",
+      body: JSON.stringify(customerInput(customer)),
+    });
   },
 
-  deleteCustomer: async (uuid: string) => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/customer/${uuid}`, {
-        method: "DELETE",
-        headers: getHeaders(),
-      });
-
-      const data = (await response.json()) as ApiResponse<ApiCustomer>;
-
-      if (!response.ok) {
-        throw new Error(data.error || "Could not delete customer.");
-      }
-    } catch (error: unknown) {
-      return handleError(error as Error);
-    }
+  async deleteCustomer(uuid: string): Promise<void> {
+    await request<void>(`/customers/${uuid}`, { method: "DELETE" });
   },
 
-  getCustomerByUUID: async (uuid: string): Promise<Customer> => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/customer/${uuid}`, {
-        headers: getHeaders(),
-      });
-      const data = (await response.json()) as ApiCustomer;
-
-      if (!response.ok) {
-        throw new Error("Could not load customer.");
-      }
-
-      return mapApiToCustomer(data);
-    } catch (error: unknown) {
-      return handleError(error as Error);
-    }
+  async getCustomerByUUID(uuid: string): Promise<Customer> {
+    const data = await request<ApiCustomer>(`/customers/${uuid}`);
+    return mapApiToCustomer(data);
   },
 };
+
+function customerInput(customer: Customer): CustomerInput {
+  return {
+    firstName: customer.firstName,
+    lastName: customer.lastName,
+    dateOfBirth: customer.dateOfBirth,
+    phoneNumber: customer.phoneNumber,
+    email: customer.email,
+    bankAccountNumber: customer.bankAccountNumber,
+  };
+}
 
 export default RestApiService;
