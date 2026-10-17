@@ -1,242 +1,144 @@
 <template>
-  <!-- Create/Edit user modal -->
-  <!-- open = flex class -->
-  <aside
-    class="flex w-full fixed items-center justify-center z-50 top-0 left-0 h-screen"
-  >
+  <section class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6" @keydown.esc.stop.prevent="close">
+    <button type="button" aria-label="Close customer form" class="absolute inset-0 cursor-default bg-slate-950/45 backdrop-blur-[2px]" @click="close"></button>
     <div
-      @click="showModalStatusChange(false)"
-      class="fixed w-full h-full bg-gray-900/90 top-0 left-0 cursor-pointer"
-    ></div>
-    <div
-      id="editUserModal"
-      tabindex="-1"
-      aria-hidden="true"
-      class="w-full max-w-2xl max-h-full p-4 overflow-x-hidden overflow-y-auto md:inset-0"
+      role="dialog"
+      aria-modal="true"
+      :aria-labelledby="titleId"
+      class="relative flex max-h-[calc(100vh-1.5rem)] w-full max-w-2xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl shadow-slate-950/20 sm:max-h-[calc(100vh-3rem)]"
     >
-      <div class="relative">
-        <!-- Modal content -->
-        <form
-          @submit.prevent="validateForm"
-          class="relative bg-white rounded-lg shadow dark:bg-gray-700"
-        >
-          <!-- Modal header -->
-          <div
-            class="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600"
-          >
-            <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
-              {{
-                type === "create"
-                  ? "Create new customer"
-                  : "Edit customer details"
-              }}
-            </h3>
-            <button
-              @click="showModalStatusChange(false)"
-              type="button"
-              class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
-              data-modal-hide="editUserModal"
-            >
-              <svg
-                class="w-3 h-3"
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 14 14"
-              >
-                <path
-                  stroke="currentColor"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
-                />
-              </svg>
-              <span class="sr-only">Close modal</span>
-            </button>
-          </div>
-          <!-- Modal body -->
-          <div class="p-6 space-y-6">
-            <div class="grid grid-cols-6 gap-6">
-              <template v-for="(value, key) in customer" :key="key">
-                <input-field
-                  v-if="key !== '_uuid'"
-                  :modelValue="customer[key]"
-                  :label="fieldLabels[key] || key"
-                  @update:modelValue="updateCustomerValue(key, $event)"
-                  @update:blurValidate="validateInputs"
-                  :hasError="validationErrors[key]"
-                />
-              </template>
-            </div>
-          </div>
-          <!-- Modal footer -->
-          <div
-            class="flex justify-between items-center p-6 space-x-3 rtl:space-x-reverse border-t border-gray-200 rounded-b dark:border-gray-600"
-          >
-            <button
-              v-if="modalLoading"
-              disabled
-              type="button"
-              class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 inline-flex items-center"
-            >
-              <svg
-                aria-hidden="true"
-                role="status"
-                class="inline w-4 h-4 me-3 text-white animate-spin"
-                viewBox="0 0 100 101"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
-                  fill="#E5E7EB"
-                />
-                <path
-                  d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
-                  fill="currentColor"
-                />
-              </svg>
-              Loading...
-            </button>
+      <header class="flex items-start justify-between border-b border-slate-100 px-5 py-5 sm:px-7">
+        <div>
+          <p class="text-xs font-bold uppercase tracking-[0.16em] text-blue-700">Customer details</p>
+          <h2 :id="titleId" class="mt-1 text-xl font-semibold tracking-tight text-slate-950">
+            {{ type === "create" ? "Add a customer" : "Edit customer" }}
+          </h2>
+          <p class="mt-1 text-sm text-slate-500">Fields marked with * are required.</p>
+        </div>
+        <button type="button" aria-label="Close" class="rounded-lg p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-800 focus:outline-none focus:ring-4 focus:ring-slate-200" @click="close">
+          <svg aria-hidden="true" class="h-5 w-5" viewBox="0 0 20 20" fill="none">
+            <path d="m5 5 10 10M15 5 5 15" stroke="currentColor" stroke-linecap="round" stroke-width="1.7" />
+          </svg>
+        </button>
+      </header>
 
-            <button
-              v-else
-              type="submit"
-              class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-            >
-              {{ type === "create" ? "Create customer" : "Save Changes" }}
-            </button>
-            <div class="flex items-center gap-2">
-              <svg
-                v-if="submitStatus"
-                :class="[
-                  'w-5 h-5 select-none mr-1',
-                  submitStatus === 'failed' ? 'text-red-500' : 'text-green-500',
-                ]"
-              >
-                <use
-                  :href="`/icons.svg#${
-                    submitStatus === 'failed' ? 'warning' : 'check'
-                  }`"
-                ></use>
-              </svg>
+      <form class="overflow-y-auto" novalidate @submit.prevent="save">
+        <div class="grid gap-x-5 gap-y-5 px-5 py-6 sm:grid-cols-2 sm:px-7">
+          <InputField
+            v-for="field in fields"
+            :key="field.name"
+            :name="field.name"
+            :label="field.label"
+            :type="field.type"
+            :inputmode="field.inputmode"
+            :autocomplete="field.autocomplete"
+            :placeholder="field.placeholder"
+            :hint="field.hint"
+            :model-value="customer[field.name]"
+            :error-message="errors[field.name]"
+            @update:model-value="updateCustomerValue(field.name, $event)"
+            @blur="validateField(field.name)"
+          />
+        </div>
 
-              <p
-                :class="[
-                  'font-bold',
-                  submitStatus === 'failed' ? 'text-red-500' : 'text-green-500',
-                ]"
-              >
-                {{ formSubmitMsg }}
-              </p>
-            </div>
-          </div>
-        </form>
-      </div>
+        <p v-if="formMessage" :class="success ? 'border-emerald-200 bg-emerald-50 text-emerald-800' : 'border-rose-200 bg-rose-50 text-rose-800'" class="mx-5 mb-5 rounded-lg border px-4 py-3 text-sm sm:mx-7" :role="success ? 'status' : 'alert'">
+          {{ formMessage }}
+        </p>
+
+        <footer class="flex flex-col-reverse gap-3 border-t border-slate-100 bg-slate-50/70 px-5 py-4 sm:flex-row sm:justify-end sm:px-7">
+          <button type="button" class="h-10 rounded-lg border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-4 focus:ring-slate-200" @click="close">
+            Cancel
+          </button>
+          <button type="submit" :disabled="modalLoading || success" class="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-blue-700 px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-200 disabled:cursor-wait disabled:opacity-60">
+            <span v-if="modalLoading" class="h-4 w-4 animate-spin rounded-full border-2 border-blue-200 border-t-white" aria-hidden="true"></span>
+            {{ modalLoading ? "Saving…" : type === "create" ? "Add customer" : "Save changes" }}
+          </button>
+        </footer>
+      </form>
     </div>
-  </aside>
+  </section>
 </template>
 
 <script setup lang="ts">
+import { onBeforeUnmount, reactive, ref } from "vue";
 import InputField from "@/components/Shared/InputField.vue";
+import { Customer } from "@/domain/entities/Customer";
 import { customerRepository } from "@/domain/repositories/CustomerRepository";
-import { ref, reactive } from "vue";
-import {
-  isValidPhoneNumber,
-  isValidEmail,
-  isValidBankAccountNumber,
-} from "@/utils/validators";
+import { isValidBankAccountNumber, isValidEmail, isValidPhoneNumber } from "@/utils/validators";
 
-const emit = defineEmits(["updateCustomer", "updateShowModal"]);
+type CustomerField = "firstName" | "lastName" | "dateOfBirth" | "phoneNumber" | "email" | "bankAccountNumber";
+type FieldConfig = { name: CustomerField; label: string; type?: string; inputmode?: "text" | "numeric" | "tel" | "email"; autocomplete?: string; placeholder?: string; hint?: string };
 
-const props = defineProps({
-  customer: {
-    type: Object,
-    required: true,
-  },
-  type: String,
-  showModal: {
-    type: Boolean,
-    default: false,
-  },
-});
+const props = defineProps<{ customer: Customer; type: "create" | "edit" }>();
+const emit = defineEmits<{
+  (event: "updateCustomer", payload: { key: CustomerField; value: string }): void;
+  (event: "updateShowModal", status: boolean): void;
+}>();
+
+const titleId = "customer-form-title";
 const modalLoading = customerRepository.modalLoading;
-const fieldLabels: Record<string, string> = {
-  firstName: "First name",
-  lastName: "Last name",
-  dateOfBirth: "Date of birth",
-  phoneNumber: "Phone number",
-  email: "Email address",
-  bankAccountNumber: "Bank account number",
-};
+const errors = reactive<Partial<Record<CustomerField, string>>>({});
+const formMessage = ref("");
+const success = ref(false);
+let closeTimer: ReturnType<typeof setTimeout> | undefined;
 
-const updateCustomerValue = (key: string, value: string) => {
+const fields: FieldConfig[] = [
+  { name: "firstName", label: "First name", autocomplete: "given-name" },
+  { name: "lastName", label: "Last name", autocomplete: "family-name" },
+  { name: "dateOfBirth", label: "Date of birth", type: "date", autocomplete: "bday" },
+  { name: "phoneNumber", label: "Phone number", type: "tel", inputmode: "tel", autocomplete: "tel", placeholder: "+1 555 123 4567", hint: "Include the country code." },
+  { name: "email", label: "Email address", type: "email", inputmode: "email", autocomplete: "email", placeholder: "name@example.com" },
+  { name: "bankAccountNumber", label: "Bank account number", inputmode: "numeric", autocomplete: "off", hint: "Use 8–20 digits. Only the last four digits appear in the list." },
+];
+
+const close = () => emit("updateShowModal", false);
+
+const updateCustomerValue = (key: CustomerField, value: string) => {
+  formMessage.value = "";
   emit("updateCustomer", { key, value });
 };
 
-let validationErrors = reactive({});
+const validateField = (field: CustomerField): string => {
+  const value = String(props.customer[field] || "").trim();
+  let message = "";
+  if (field === "firstName" || field === "lastName") {
+    if (!value) message = "Enter a name.";
+    else if (value.length > 100) message = "Use 100 characters or fewer.";
+  } else if (field === "dateOfBirth") {
+    const date = new Date(`${value}T00:00:00Z`);
+    if (!value || Number.isNaN(date.valueOf()) || date.toISOString().slice(0, 10) !== value) message = "Enter a valid date.";
+  } else if (field === "phoneNumber" && !isValidPhoneNumber(value)) {
+    message = "Enter a valid phone number with country code.";
+  } else if (field === "email" && !isValidEmail(value)) {
+    message = "Enter a valid email address.";
+  } else if (field === "bankAccountNumber" && !isValidBankAccountNumber(value)) {
+    message = "Enter 8–20 digits.";
+  }
+  if (message) errors[field] = message;
+  else delete errors[field];
+  return message;
+};
 
-Object.keys(props.customer).forEach((fieldName) => {
-  if (fieldName !== "_uuid") validationErrors[fieldName] = null;
+const save = async () => {
+  const invalid = fields.map((field) => validateField(field.name)).find(Boolean);
+  if (invalid) {
+    formMessage.value = "Check the highlighted fields and try again.";
+    return;
+  }
+
+  formMessage.value = "";
+  try {
+    if (props.type === "create") await customerRepository.addCustomer(props.customer);
+    else await customerRepository.updateCustomer(props.customer);
+    success.value = true;
+    formMessage.value = props.type === "create" ? "Customer added." : "Changes saved.";
+    closeTimer = setTimeout(close, 700);
+  } catch (error) {
+    formMessage.value = error instanceof Error ? error.message : "Could not save this customer.";
+  }
+};
+
+onBeforeUnmount(() => {
+  if (closeTimer) clearTimeout(closeTimer);
 });
-
-const showModalStatusChange = (status: boolean) => {
-  emit("updateShowModal", status);
-};
-
-const validateInputs = (fieldName) => {
-  switch (fieldName) {
-    case "phoneNumber":
-      validationErrors[fieldName] = !isValidPhoneNumber(
-        props.customer[fieldName]
-      );
-      break;
-    case "email":
-      validationErrors[fieldName] = !isValidEmail(props.customer[fieldName]);
-      break;
-    case "bankAccountNumber":
-      validationErrors[fieldName] = !isValidBankAccountNumber(
-        props.customer[fieldName]
-      );
-      break;
-    default:
-      // basic validation for presence
-      validationErrors[fieldName] = !props.customer[fieldName];
-      break;
-  }
-};
-const formSubmitMsg = ref("");
-const submitStatus = ref("");
-const validateForm = async () => {
-  Object.keys(validationErrors).forEach((fieldName) => {
-    validateInputs(fieldName);
-  });
-  const isValid = Object.keys(validationErrors).every(
-    (fieldName) =>
-      validationErrors[fieldName] !== null && !validationErrors[fieldName]
-  );
-  if (isValid) {
-    try {
-      if (props.type === "create")
-        await customerRepository.addCustomer(props.customer);
-      else if (props.type === "edit")
-        await customerRepository.updateCustomer(props.customer);
-      submitStatus.value = "success";
-      formSubmitMsg.value =
-        props.type === "create"
-          ? "Customer Created Successfully"
-          : "Customer Edited Successfully";
-
-      setTimeout(() => {
-        showModalStatusChange(false);
-      }, 1000);
-    } catch (error) {
-      formSubmitMsg.value = error.message;
-      submitStatus.value = "failed";
-    }
-  }
-};
 </script>
-
-<style scoped></style>

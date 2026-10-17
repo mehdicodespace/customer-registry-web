@@ -1,46 +1,46 @@
 <template>
-  <div class="col-span-6 sm:col-span-3">
-    <label
-      :for="label.replace(/\s+/g, '-')"
-      class="flex items-center justify-between mb-2 text-sm font-medium text-gray-900 dark:text-white"
-    >
-      <span>{{ label }}</span>
-      <svg
-        v-if="hasError !== null"
-        :class="[
-          'w-5 h-5 select-none mr-1',
-          hasError ? 'text-red-500' : 'text-green-500',
-        ]"
-      >
-        <use :href="`/icons.svg#${hasError ? 'warning' : 'check'}`"></use>
-      </svg>
+  <div class="space-y-1.5">
+    <label :for="props.name" class="block text-sm font-medium text-slate-700">
+      {{ props.label }}
+      <span class="text-rose-600" aria-hidden="true">*</span>
     </label>
     <input
-      type="text"
-      :id="label.replace(/\s+/g, '-')"
-      class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-      :value="modelValue"
-      @input="$emit('update:modelValue', $event.target.value)"
-      @blur="$emit('update:blurValidate', label)"
-      :placeholder="label === 'phoneNumber' ? 'Enter with country code' : ''"
+      :id="props.name"
+      :name="props.name"
+      :type="props.type || 'text'"
+      :value="props.modelValue"
+      :required="props.required !== false"
+      :inputmode="props.inputmode || 'text'"
+      :autocomplete="props.autocomplete || 'off'"
+      :aria-invalid="Boolean(props.errorMessage)"
+      :aria-describedby="props.errorMessage ? `${props.name}-error` : props.hint ? `${props.name}-hint` : undefined"
+      :placeholder="props.placeholder"
+      class="min-h-11 w-full rounded-lg border bg-white px-3 py-2 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:ring-4 disabled:bg-slate-50"
+      :class="props.errorMessage ? 'border-rose-400 focus:border-rose-600 focus:ring-rose-100' : 'border-slate-300 focus:border-blue-600 focus:ring-blue-100'"
+      @input="emit('update:modelValue', ($event.target as HTMLInputElement).value)"
+      @blur="emit('blur')"
     />
+    <p v-if="props.errorMessage" :id="`${props.name}-error`" class="text-xs text-rose-700" role="alert">{{ props.errorMessage }}</p>
+    <p v-else-if="props.hint" :id="`${props.name}-hint`" class="text-xs text-slate-500">{{ props.hint }}</p>
   </div>
 </template>
 
 <script setup lang="ts">
-defineProps({
-  label: {
-    type: String,
-    required: true,
-  },
-  modelValue: {
-    required: true,
-  },
-  hasError: {
-    type: Boolean,
-    default: null,
-  },
-});
-</script>
+const props = defineProps<{
+  name: string;
+  label: string;
+  modelValue: string;
+  type?: string;
+  required?: boolean;
+  inputmode?: "text" | "numeric" | "tel" | "email";
+  autocomplete?: string;
+  placeholder?: string;
+  hint?: string;
+  errorMessage?: string;
+}>();
 
-<style scoped></style>
+const emit = defineEmits<{
+  (event: "update:modelValue", value: string): void;
+  (event: "blur"): void;
+}>();
+</script>

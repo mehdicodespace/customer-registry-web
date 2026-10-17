@@ -8,8 +8,8 @@ interface AuthResponse {
   user: AuthUser;
 }
 
-const SESSION_KEY = "customer-directory-session";
-const SESSION_EXPIRY_KEY = "customer-directory-session-expiry";
+const SESSION_KEY = "customer-registry-session";
+const SESSION_EXPIRY_KEY = "customer-registry-session-expiry";
 
 const getApiBaseUrl = (): string => {
   const baseUrl = process.env.VUE_APP_API_BASE_URL;
@@ -25,7 +25,7 @@ const request = async (path: string, body: Record<string, string>) => {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
-  const data = await response.json();
+  const data = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(data.error || "Could not sign in.");
   return data as AuthResponse;
 };
@@ -60,7 +60,7 @@ const AuthService = {
     const response = await fetch(`${getApiBaseUrl()}/auth/me`, {
       headers: { Authorization: `Bearer ${token}` },
     });
-    const data = await response.json();
+    const data = await response.json().catch(() => ({}));
     if (!response.ok) {
       if (response.status === 401) this.signOut();
       throw new Error(data.error || "Your session has expired.");

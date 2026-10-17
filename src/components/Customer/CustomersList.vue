@@ -1,173 +1,177 @@
 <template>
-  <section
-    class="relative mx-auto w-11/12 max-w-7xl overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-900/5 sm:rounded-3xl"
-  >
-    <div class="border-b border-slate-100 px-6 py-8 sm:px-10 sm:py-10">
-      <div class="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p class="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-blue-600">Customer records</p>
-          <h1 class="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">Customers</h1>
-          <p class="mt-2 text-sm text-slate-500">Manage your customer details in one place.</p>
-        </div>
+  <section class="mx-auto w-11/12 max-w-7xl">
+    <div class="mb-7 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <p class="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-blue-700">Workspace</p>
+        <h1 class="text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">Customers</h1>
+        <p class="mt-2 text-sm text-slate-500">A clear view of the people you work with.</p>
+      </div>
       <button
-        @click="updateShowModal(true)"
         type="button"
-        class="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-sm px-6 py-3.5 text-center"
+        class="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-blue-700 px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-200"
+        @click="openCreateModal"
       >
-        <span class="mr-2 text-lg leading-none">+</span> Add customer
+        <span aria-hidden="true" class="text-lg leading-none">+</span>
+        Add customer
       </button>
-      </div>
     </div>
 
-    <div v-if="allCustomers.length > 0" class="overflow-x-auto">
-    <table class="w-full text-left text-sm text-slate-600">
-      <thead
-        class="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500"
-      >
-        <tr>
-          <th scope="col" class="px-6 py-4">Full Name</th>
-          <th scope="col" class="px-6 py-4">Email</th>
-          <th scope="col" class="px-6 py-4">Phone Number</th>
-          <th scope="col" class="px-6 py-4">Date of Birth</th>
-          <th scope="col" class="px-6 py-4">Bank Account Number</th>
-          <th scope="col" class="px-6 py-4">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr
-          v-for="customer in allCustomers"
-          :key="customer._uuid"
-          class="border-t border-slate-100 bg-white transition-colors hover:bg-slate-50"
-        >
-          <td
-            scope="row"
-            class="flex items-center whitespace-nowrap px-6 py-4 text-slate-900"
-          >
-            <svg class="w-10 h-10 text-gray-400 select-none">
-              <use :href="`/icons.svg#user`"></use>
-            </svg>
-            <div class="ps-3">
-              <div class="text-sm font-semibold">
-                {{ customer.fullName() }}
-              </div>
-            </div>
-          </td>
-          <td class="px-6 py-4">{{ customer.email }}</td>
-          <td class="px-6 py-4">
-            <div class="flex items-center">
-              {{ customer.phoneNumber }}
-            </div>
-          </td>
-          <td class="px-6 py-4">
-            <div class="flex items-center">
-              {{ customer.dateOfBirth }}
-            </div>
-          </td>
-          <td class="px-6 py-4">
-            <div class="flex items-center">
-              {{ customer.bankAccountNumber }}
-            </div>
-          </td>
-          <td class="px-6 py-4">
-            <!-- Modal toggle -->
-            <div class="flex gap-4">
-              <a
-                href="#"
-                @click.prevent="showEditCustomerModal(customer)"
-                class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                >Edit Customer</a
-              >
-
-              <a
-                href="#"
-                @click.prevent="customerRepository.removeCustomer(customer)"
-                class="font-medium text-red-600 dark:text-red-500 hover:underline"
-                >Delete</a
-              >
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-    </div>
-    <div
-      v-else
-      role="status"
-      class="px-6 py-16 text-center sm:px-10"
-    >
-      <div
-        class="flex flex-col items-center justify-center gap-3"
-        v-if="getCustomersLoading"
-      >
-        <svg
-          aria-hidden="true"
-          class="inline w-12 h-12 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
-          viewBox="0 0 100 101"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
-            fill="currentColor"
+    <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <div class="flex flex-col gap-4 border-b border-slate-100 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+        <div>
+          <h2 class="font-semibold text-slate-900">Customer list</h2>
+          <p class="mt-1 text-sm text-slate-500">
+            {{ allCustomers.length }} {{ allCustomers.length === 1 ? "record" : "records" }}
+          </p>
+        </div>
+        <label class="relative block w-full sm:max-w-xs">
+          <span class="sr-only">Search customers</span>
+          <svg aria-hidden="true" class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" viewBox="0 0 20 20" fill="none">
+            <circle cx="8.75" cy="8.75" r="5.75" stroke="currentColor" stroke-width="1.6" />
+            <path d="m13 13 4 4" stroke="currentColor" stroke-linecap="round" stroke-width="1.6" />
+          </svg>
+          <input
+            v-model.trim="searchQuery"
+            type="search"
+            placeholder="Search by name or email"
+            class="min-h-10 w-full rounded-lg border border-slate-300 bg-white pl-9 pr-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-600 focus:ring-4 focus:ring-blue-100"
           />
-          <path
-            d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
-            fill="currentFill"
-          />
-        </svg>
-        <span class="text-sm font-medium text-slate-500">Loading customer records…</span>
+        </label>
       </div>
 
-      <div v-else class="mx-auto flex max-w-md flex-col items-center">
-        <span class="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-2xl text-blue-600" aria-hidden="true">＋</span>
-        <h2 class="text-lg font-semibold text-slate-900">No customers yet</h2>
-        <p class="mt-2 text-sm leading-6 text-slate-500">Add your first customer to start building your directory. Your records are saved to your account.</p>
-        <button @click="updateShowModal(true)" type="button" class="mt-6 rounded-lg bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-200">Add your first customer</button>
+      <div v-if="getCustomersLoading" class="flex min-h-64 flex-col items-center justify-center gap-3 px-6 text-center" role="status">
+        <span class="h-8 w-8 animate-spin rounded-full border-[3px] border-blue-100 border-t-blue-700" aria-hidden="true"></span>
+        <p class="text-sm text-slate-500">Loading customer records…</p>
+      </div>
+
+      <div v-else-if="allCustomers.length === 0" class="flex min-h-72 flex-col items-center justify-center px-6 py-12 text-center">
+        <span class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-xl text-blue-700" aria-hidden="true">＋</span>
+        <h3 class="font-semibold text-slate-900">Your list is ready for its first entry</h3>
+        <p class="mt-2 max-w-sm text-sm leading-6 text-slate-500">Add a customer to keep their contact details together in one place.</p>
+        <button type="button" class="mt-5 rounded-lg px-4 py-2 text-sm font-semibold text-blue-700 transition hover:bg-blue-50 focus:outline-none focus:ring-4 focus:ring-blue-100" @click="openCreateModal">
+          Add your first customer
+        </button>
+      </div>
+
+      <div v-else-if="filteredCustomers.length === 0" class="px-6 py-16 text-center">
+        <h3 class="font-semibold text-slate-900">No matching customers</h3>
+        <p class="mt-2 text-sm text-slate-500">Try a different name or email address.</p>
+      </div>
+
+      <div v-else class="overflow-x-auto">
+        <table class="w-full min-w-[760px] text-left text-sm">
+          <thead class="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
+            <tr>
+              <th scope="col" class="px-6 py-3.5">Customer</th>
+              <th scope="col" class="px-6 py-3.5">Contact</th>
+              <th scope="col" class="px-6 py-3.5">Date of birth</th>
+              <th scope="col" class="px-6 py-3.5">Account</th>
+              <th scope="col" class="px-6 py-3.5"><span class="sr-only">Actions</span></th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            <tr v-for="customer in filteredCustomers" :key="customer._uuid" class="transition-colors hover:bg-slate-50/70">
+              <td class="px-6 py-4">
+                <p class="font-semibold text-slate-900">{{ customer.fullName() }}</p>
+                <p class="mt-1 text-xs text-slate-500">{{ customer.phoneNumber }}</p>
+              </td>
+              <td class="px-6 py-4 text-slate-600">{{ customer.email }}</td>
+              <td class="px-6 py-4 text-slate-600">{{ formatDate(customer.dateOfBirth) }}</td>
+              <td class="px-6 py-4 font-mono text-slate-600" :aria-label="`Account ending in ${lastFour(customer.bankAccountNumber)}`">
+                {{ maskAccount(customer.bankAccountNumber) }}
+              </td>
+              <td class="px-6 py-4">
+                <div class="flex justify-end gap-1">
+                  <button type="button" class="rounded-md px-3 py-2 text-xs font-semibold text-blue-700 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-300" @click="openEditModal(customer)">
+                    Edit
+                  </button>
+                  <button type="button" :disabled="deletingId === customer._uuid" class="rounded-md px-3 py-2 text-xs font-semibold text-rose-700 hover:bg-rose-50 focus:outline-none focus:ring-2 focus:ring-rose-300 disabled:cursor-wait disabled:opacity-60" @click="removeCustomer(customer)">
+                    {{ deletingId === customer._uuid ? "Deleting…" : "Delete" }}
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
+
+    <p v-if="deleteError" role="alert" class="mt-4 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
+      {{ deleteError }}
+    </p>
 
     <customer-modal
       v-if="showModal"
       :type="modalType"
-      :show-modal="showModal"
       :customer="modalCustomer"
       @updateCustomer="updateModalCustomer"
       @updateShowModal="updateShowModal"
-    ></customer-modal>
+    />
   </section>
 </template>
 
 <script setup lang="ts">
+import { computed, ref } from "vue";
 import CustomerModal from "@/components/Customer/CustomerModal.vue";
-
-import { reactive, ref } from "vue";
 import { Customer } from "@/domain/entities/Customer";
 import { customerRepository } from "@/domain/repositories/CustomerRepository";
 
-let modalCustomer = reactive(new Customer({}));
 const showModal = ref(false);
-const modalType = ref("create");
+const modalType = ref<"create" | "edit">("create");
+const modalCustomer = ref(new Customer());
+const searchQuery = ref("");
+const deleteError = ref("");
+const deletingId = ref("");
 
-const updateModalCustomer = ({ key, value }) => {
-  modalCustomer[key] = value;
+const getCustomersLoading = customerRepository.getCustomersLoading;
+const allCustomers = customerRepository.getAllCustomers();
+const filteredCustomers = computed(() => {
+  const query = searchQuery.value.toLocaleLowerCase();
+  if (!query) return allCustomers.value;
+  return allCustomers.value.filter((customer) =>
+    `${customer.fullName()} ${customer.email}`.toLocaleLowerCase().includes(query)
+  );
+});
+
+const openCreateModal = () => {
+  modalCustomer.value = new Customer();
+  modalType.value = "create";
+  showModal.value = true;
 };
 
-const updateShowModal = (status) => {
-  showModal.value = status;
-  if (status === false) {
-    modalCustomer = reactive(new Customer({}));
-    modalType.value = "create";
-  }
-};
-
-const showEditCustomerModal = (customer) => {
-  modalCustomer = { ...customer };
+const openEditModal = (customer: Customer) => {
+  modalCustomer.value = new Customer(customer);
   modalType.value = "edit";
   showModal.value = true;
 };
 
-const getCustomersLoading = customerRepository.getCustomersLoading;
-const allCustomers = customerRepository.getAllCustomers();
-</script>
+const updateModalCustomer = (payload: { key: CustomerField; value: string }) => {
+  modalCustomer.value = new Customer({ ...modalCustomer.value, [payload.key]: payload.value });
+};
 
-<style lang="scss" scoped></style>
+const updateShowModal = (status: boolean) => {
+  showModal.value = status;
+};
+
+const removeCustomer = async (customer: Customer) => {
+  if (!window.confirm(`Delete ${customer.fullName()} from your customer list?`)) return;
+  deletingId.value = customer._uuid;
+  deleteError.value = "";
+  try {
+    await customerRepository.removeCustomer(customer);
+  } catch (error) {
+    deleteError.value = error instanceof Error ? error.message : "Could not delete this customer.";
+  } finally {
+    deletingId.value = "";
+  }
+};
+
+const lastFour = (accountNumber: string) => accountNumber.slice(-4);
+const maskAccount = (accountNumber: string) => `${"•".repeat(Math.max(4, accountNumber.length - 4))} ${lastFour(accountNumber)}`;
+const formatDate = (date: string) => {
+  if (!date) return "—";
+  return new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeZone: "UTC" }).format(new Date(`${date}T00:00:00Z`));
+};
+
+type CustomerField = "firstName" | "lastName" | "dateOfBirth" | "phoneNumber" | "email" | "bankAccountNumber";
+</script>

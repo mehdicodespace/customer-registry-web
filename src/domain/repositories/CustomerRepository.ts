@@ -57,14 +57,19 @@ class CustomerRepository {
   }
 
   private isUnique(customer: Customer): boolean {
-    return !this.customers.value.some(
-      (existing) =>
-        existing._uuid !== customer._uuid &&
-        (existing.firstName.trim().toLowerCase() === customer.firstName.trim().toLowerCase() &&
-          existing.lastName.trim().toLowerCase() === customer.lastName.trim().toLowerCase() &&
-          existing.dateOfBirth === customer.dateOfBirth ||
-          existing.email.toLowerCase() === customer.email.toLowerCase())
-    );
+    const normalizedEmail = customer.email.trim().toLocaleLowerCase();
+    const normalizedFirstName = customer.firstName.trim().toLocaleLowerCase();
+    const normalizedLastName = customer.lastName.trim().toLocaleLowerCase();
+
+    return !this.customers.value.some((existing) => {
+      if (existing._uuid === customer._uuid) return false;
+      const sameEmail = existing.email.trim().toLocaleLowerCase() === normalizedEmail;
+      const sameIdentity =
+        existing.firstName.trim().toLocaleLowerCase() === normalizedFirstName &&
+        existing.lastName.trim().toLocaleLowerCase() === normalizedLastName &&
+        existing.dateOfBirth === customer.dateOfBirth;
+      return sameEmail || sameIdentity;
+    });
   }
 }
 

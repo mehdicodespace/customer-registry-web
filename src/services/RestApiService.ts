@@ -38,8 +38,8 @@ const request = async <T>(path: string, init: RequestInit = {}): Promise<T> => {
   });
 
   if (response.status === 204) return undefined as unknown as T;
-  const data = await response.json();
-  if (!response.ok) throw new Error(data.error || "The request could not be completed.");
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.error || "The request could not be completed. Please try again.");
   return data as T;
 };
 
