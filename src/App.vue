@@ -1,7 +1,7 @@
 <template>
-  <section class="bg-dark-500">
+  <main class="min-h-screen py-12 sm:py-16">
     <customers-list></customers-list>
-  </section>
+  </main>
 </template>
 
 <script setup lang="ts">

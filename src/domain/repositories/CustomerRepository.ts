@@ -1,4 +1,4 @@
-import { ref, Ref, unref } from "vue";
+import { ref, Ref } from "vue";
 import { Customer } from "@/domain/entities/Customer";
 import { LocalStorageService } from "@/services/LocalStorageService";
 import RestApiService from "@/services/RestApiService";
@@ -28,8 +28,11 @@ class CustomerRepository {
             (localCustomer) => localCustomer._uuid === apiCustomer._uuid
           )
       );
-      this.customers.value = [...uniqueApiCustomers];
-      this.localStorageService.updateLocalStorage(this.customers.value); // Update local storage
+      const mergedCustomers = [...uniqueApiCustomers, ...this.customers.value];
+      this.customers.value = mergedCustomers;
+      this.localStorageService.updateLocalStorage(mergedCustomers);
+    } catch {
+      // Keep the locally saved list available when the API cannot be reached.
     } finally {
       this.getCustomersLoading.value = false;
     }
@@ -45,10 +48,11 @@ class CustomerRepository {
         this.customers.value.push(createdCustomer);
         this.localStorageService.updateLocalStorage(this.customers.value); // Update local storage
       } else {
-        throw new Error();
+        throw new Error("Duplicate customer found");
       }
     } catch (error) {
-      throw new Error("Error adding customer: Duplicate customer found");
+      if (error instanceof Error && error.message.includes("Duplicate")) throw error;
+      throw new Error(`Error adding customer: ${error instanceof Error ? error.message : "Unknown error"}`);
     } finally {
       this.modalLoading.value = false;
     }
@@ -56,14 +60,13 @@ class CustomerRepository {
 
   async removeCustomer(customer: Customer): Promise<void> {
     try {
-      await this.restApiService.deleteCustomer(unref(customer._uuid));
+      await this.restApiService.deleteCustomer(customer._uuid);
       this.customers.value = this.customers.value.filter(
         (c) => c._uuid !== customer._uuid
       );
       this.localStorageService.updateLocalStorage(this.customers.value); // Update local storage
     } catch (error) {
-      throw new Error("Error removing customer");
-      throw error;
+      throw new Error(`Error removing customer: ${error instanceof Error ? error.message : "Unknown error"}`);
     }
   }
 
@@ -72,18 +75,20 @@ class CustomerRepository {
 
     try {
       const index = this.customers.value.findIndex(
-        (c) => unref(c._uuid) === unref(updatedCustomer._uuid)
+        (c) => c._uuid === updatedCustomer._uuid
       );
 
-      if (index !== -1) {
-        Object.assign(this.customers.value[index], updatedCustomer);
-        this.localStorageService.updateLocalStorage(this.customers.value); // Update local storage
+      if (!this.isUnique(updatedCustomer)) {
+        throw new Error("Duplicate customer found");
       }
 
       await this.restApiService.updateCustomer(updatedCustomer);
+      if (index !== -1) {
+        this.customers.value[index] = updatedCustomer;
+        this.localStorageService.updateLocalStorage(this.customers.value);
+      }
     } catch (error) {
-      throw new Error("Error updating customer");
-      throw error;
+      throw new Error(`Error updating customer: ${error instanceof Error ? error.message : "Unknown error"}`);
     } finally {
       this.modalLoading.value = false;
     }
@@ -97,10 +102,11 @@ class CustomerRepository {
     return (
       !this.customers.value.some(
         (c) =>
-          c.firstName === customer.firstName &&
-          c.lastName === customer.lastName &&
+          c._uuid !== customer._uuid &&
+          c.firstName.trim().toLowerCase() === customer.firstName.trim().toLowerCase() &&
+          c.lastName.trim().toLowerCase() === customer.lastName.trim().toLowerCase() &&
           c.dateOfBirth === customer.dateOfBirth
-      ) && !this.customers.value.some((c) => c.email === customer.email)
+      ) && !this.customers.value.some((c) => c._uuid !== customer._uuid && c.email.toLowerCase() === customer.email.toLowerCase())
     );
   }
 }

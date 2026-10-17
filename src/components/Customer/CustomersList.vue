@@ -1,23 +1,28 @@
 <template>
-  <div
-    class="relative overflow-x-auto w-11/12 bg-gray-200 mx-auto mt-12 sm:rounded-lg py-12 px-12"
+  <section
+    class="relative mx-auto w-11/12 max-w-7xl overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-900/5 sm:rounded-3xl"
   >
-    <div class="flex items-center gap-8 mb-12 justify-between">
-      <h2 class="text-gray-700 font-bold text-4xl">Customers List</h2>
+    <div class="border-b border-slate-100 px-6 py-8 sm:px-10 sm:py-10">
+      <div class="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p class="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-blue-600">Customer records</p>
+          <h1 class="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">Customers</h1>
+          <p class="mt-2 text-sm text-slate-500">Manage your customer details in one place.</p>
+        </div>
       <button
         @click="updateShowModal(true)"
         type="button"
         class="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 shadow-lg shadow-blue-500/50 dark:shadow-lg dark:shadow-blue-800/80 font-medium rounded-lg text-sm px-6 py-3.5 text-center"
       >
-        Create new customer
+        <span class="mr-2 text-lg leading-none">+</span> Add customer
       </button>
+      </div>
     </div>
 
-    <table
-      class="w-full shadow-md text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400"
-    >
+    <div v-if="allCustomers.length > 0" class="overflow-x-auto">
+    <table class="w-full text-left text-sm text-slate-600">
       <thead
-        class="text-gray-700 uppercase bg-gray-100 font-bold dark:bg-gray-700 dark:text-gray-400"
+        class="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500"
       >
         <tr>
           <th scope="col" class="px-6 py-4">Full Name</th>
@@ -31,18 +36,18 @@
       <tbody>
         <tr
           v-for="customer in allCustomers"
-          :key="customer.fullName()"
-          class="bg-white dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+          :key="customer._uuid"
+          class="border-t border-slate-100 bg-white transition-colors hover:bg-slate-50"
         >
           <td
             scope="row"
-            class="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white"
+            class="flex items-center whitespace-nowrap px-6 py-4 text-slate-900"
           >
             <svg class="w-10 h-10 text-gray-400 select-none">
               <use :href="`/icons.svg#user`"></use>
             </svg>
             <div class="ps-3">
-              <div class="text-base font-semibold">
+              <div class="text-sm font-semibold">
                 {{ customer.fullName() }}
               </div>
             </div>
@@ -84,13 +89,14 @@
         </tr>
       </tbody>
     </table>
+    </div>
     <div
-      v-if="allCustomers.length === 0"
+      v-else
       role="status"
-      class="bg-gray-300 py-12 font-medium"
+      class="px-6 py-16 text-center sm:px-10"
     >
       <div
-        class="flex flex-col gap-2 text-lg items-center justify-center"
+        class="flex flex-col items-center justify-center gap-3"
         v-if="getCustomersLoading"
       >
         <svg
@@ -109,11 +115,14 @@
             fill="currentFill"
           />
         </svg>
-        <span>Loading customers...</span>
+        <span class="text-sm font-medium text-slate-500">Loading customer records…</span>
       </div>
 
-      <div class="text-center text-xl" v-else-if="allCustomers.length === 0">
-        No customers have been added yet.
+      <div v-else class="mx-auto flex max-w-md flex-col items-center">
+        <span class="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-2xl text-blue-600" aria-hidden="true">＋</span>
+        <h2 class="text-lg font-semibold text-slate-900">No customers yet</h2>
+        <p class="mt-2 text-sm leading-6 text-slate-500">Add your first customer to start building your directory. Your records will be saved in this browser.</p>
+        <button @click="updateShowModal(true)" type="button" class="mt-6 rounded-lg bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-200">Add your first customer</button>
       </div>
     </div>
 
@@ -125,7 +134,7 @@
       @updateCustomer="updateModalCustomer"
       @updateShowModal="updateShowModal"
     ></customer-modal>
-  </div>
+  </section>
 </template>
 
 <script setup lang="ts">
@@ -157,7 +166,7 @@ const showEditCustomerModal = (customer) => {
   showModal.value = true;
 };
 
-const getCustomersLoading = ref(customerRepository.getCustomersLoading);
+const getCustomersLoading = customerRepository.getCustomersLoading;
 const allCustomers = customerRepository.getAllCustomers();
 </script>
 

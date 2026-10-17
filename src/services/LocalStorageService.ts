@@ -23,25 +23,19 @@ export class LocalStorageService {
   }
 
   getCustomerByUUID(uuid: string): Customer | undefined {
-    const storedData = localStorage.getItem(this.localStorageKey);
-    const customers = storedData ? JSON.parse(storedData) : [];
-    return customers.find((customer: CustomerData) => customer._uuid === uuid);
+    return this.getAllCustomers().find((customer) => customer._uuid === uuid);
   }
 
   updateCustomerInLocalStorage(updatedCustomer: Customer): void {
-    const storedData = localStorage.getItem(this.localStorageKey);
-    const customers = storedData ? JSON.parse(storedData) : [];
-    const updatedCustomers = customers.map((customer: CustomerData) =>
-      customer._uuid === updatedCustomer._uuid.value
-        ? { ...customer, ...updatedCustomer }
-        : customer
+    const customers = this.getAllCustomers();
+    const updatedCustomers = customers.map((customer) =>
+      customer._uuid === updatedCustomer._uuid ? updatedCustomer : customer
     );
     this.updateLocalStorage(updatedCustomers);
   }
 
   removeCustomerFromLocalStorage(uuid: string): void {
-    const storedData = localStorage.getItem(this.localStorageKey);
-    const customers = storedData ? JSON.parse(storedData) : [];
+    const customers = this.getAllCustomers();
     const updatedCustomers = customers.filter(
       (customer: CustomerData) => customer._uuid !== uuid
     );
@@ -49,6 +43,9 @@ export class LocalStorageService {
   }
 
   updateLocalStorage(customers: Customer[]): void {
-    localStorage.setItem(this.localStorageKey, JSON.stringify(customers));
+    localStorage.setItem(
+      this.localStorageKey,
+      JSON.stringify(customers.map((customer) => ({ ...customer })))
+    );
   }
 }

@@ -1,29 +1,43 @@
-import { Ref } from "vue";
-import { API_BASE_URL } from "@/configs/config.public";
-import { API_KEY } from "@/configs/config.private";
 import { Customer } from "@/domain/entities/Customer";
 
-const headers = {
+const API_BASE_URL = process.env.VUE_APP_API_BASE_URL;
+const API_KEY = process.env.VUE_APP_API_KEY;
+
+const getHeaders = () => {
+  if (!API_BASE_URL || !API_KEY) {
+    throw new Error("API configuration is missing. Set the VUE_APP_API_* variables in .env.local.");
+  }
+  return {
   "Content-Type": "application/json",
   Authorization: `Bearer ${API_KEY}`,
+  };
 };
 
-interface CreateCustomerRequest {
-  firstName: Ref<string>;
-  lastName: Ref<string>;
-  dateOfBirth: Ref<string>;
-  phoneNumber: Ref<string>;
-  email: Ref<string>;
-  bankAccountNumber: Ref<string>;
-}
+type CreateCustomerRequest = Pick<
+  Customer,
+  "firstName" | "lastName" | "dateOfBirth" | "phoneNumber" | "email" | "bankAccountNumber"
+>;
 
 const handleError = (error: Error): never => {
-  console.error("API Error:", error);
   throw error;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const mapApiToCustomer = (data: any): Customer => {
+interface ApiCustomer {
+  _uuid: string;
+  firstName: string;
+  lastName: string;
+  dateOfBirth: string;
+  phoneNumber: string;
+  email: string;
+  bankAccountNumber: string;
+}
+
+interface ApiResponse<T> {
+  items: T[];
+  error?: string;
+}
+
+const mapApiToCustomer = (data: ApiCustomer): Customer => {
   return new Customer({
     _uuid: data._uuid,
     firstName: data.firstName,
@@ -49,14 +63,14 @@ const RestApiService = {
 
       const response = await fetch(`${API_BASE_URL}/customer`, {
         method: "POST",
-        headers,
+        headers: getHeaders(),
         body: JSON.stringify([requestData]),
       });
 
-      const data = await response.json();
+      const data = (await response.json()) as ApiResponse<ApiCustomer>;
 
       if (!response.ok) {
-        throw new Error(data.error);
+        throw new Error(data.error || "Could not create customer.");
       }
 
       return mapApiToCustomer(data.items[0]);
@@ -67,11 +81,11 @@ const RestApiService = {
 
   getAllCustomers: async (): Promise<Customer[]> => {
     try {
-      const response = await fetch(`${API_BASE_URL}/customer`, { headers });
-      const data = await response.json();
+      const response = await fetch(`${API_BASE_URL}/customer`, { headers: getHeaders() });
+      const data = (await response.json()) as ApiResponse<ApiCustomer>;
 
       if (!response.ok) {
-        throw new Error(data.error);
+        throw new Error(data.error || "Could not load customers.");
       }
 
       return data.items.map(mapApiToCustomer);
@@ -84,14 +98,14 @@ const RestApiService = {
     try {
       const response = await fetch(`${API_BASE_URL}/customer`, {
         method: "PUT",
-        headers,
+        headers: getHeaders(),
         body: JSON.stringify([customer]),
       });
 
-      const data = await response.json();
+      const data = (await response.json()) as ApiResponse<ApiCustomer>;
 
       if (!response.ok) {
-        throw new Error(data.error);
+        throw new Error(data.error || "Could not update customer.");
       }
     } catch (error: unknown) {
       return handleError(error as Error);
@@ -102,13 +116,13 @@ const RestApiService = {
     try {
       const response = await fetch(`${API_BASE_URL}/customer/${uuid}`, {
         method: "DELETE",
-        headers,
+        headers: getHeaders(),
       });
 
-      const data = await response.json();
+      const data = (await response.json()) as ApiResponse<ApiCustomer>;
 
       if (!response.ok) {
-        throw new Error(data.error);
+        throw new Error(data.error || "Could not delete customer.");
       }
     } catch (error: unknown) {
       return handleError(error as Error);
@@ -118,12 +132,12 @@ const RestApiService = {
   getCustomerByUUID: async (uuid: string): Promise<Customer> => {
     try {
       const response = await fetch(`${API_BASE_URL}/customer/${uuid}`, {
-        headers,
+        headers: getHeaders(),
       });
-      const data = await response.json();
+      const data = (await response.json()) as ApiCustomer;
 
       if (!response.ok) {
-        throw new Error(data.error);
+        throw new Error("Could not load customer.");
       }
 
       return mapApiToCustomer(data);

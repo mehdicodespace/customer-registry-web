@@ -15,7 +15,7 @@ describe("Customer Entity", () => {
     expect(customer).toBeInstanceOf(Customer);
   });
 
-  it("Has accessible reactive properties", () => {
+  it("Keeps customer data as plain values", () => {
     const customer = new Customer({
       _uuid: "",
       firstName: "John",
@@ -26,7 +26,7 @@ describe("Customer Entity", () => {
       bankAccountNumber: "1234567890123456",
     });
 
-    expect(customer.firstName.value).toBe("John");
-    expect(customer.lastName.value).toBe("Doe");
+    expect(customer.firstName).toBe("John");
+    expect(customer.lastName).toBe("Doe");
   });
 });

@@ -62,7 +62,7 @@
                 <input-field
                   v-if="key !== '_uuid'"
                   :modelValue="customer[key]"
-                  :label="key"
+                  :label="fieldLabels[key] || key"
                   @update:modelValue="updateCustomerValue(key, $event)"
                   @update:blurValidate="validateInputs"
                   :hasError="validationErrors[key]"
@@ -161,7 +161,15 @@ const props = defineProps({
     default: false,
   },
 });
-const modalLoading = ref(customerRepository.modalLoading);
+const modalLoading = customerRepository.modalLoading;
+const fieldLabels: Record<string, string> = {
+  firstName: "First name",
+  lastName: "Last name",
+  dateOfBirth: "Date of birth",
+  phoneNumber: "Phone number",
+  email: "Email address",
+  bankAccountNumber: "Bank account number",
+};
 
 const updateCustomerValue = (key: string, value: string) => {
   emit("updateCustomer", { key, value });
@@ -225,11 +233,8 @@ const validateForm = async () => {
       }, 1000);
     } catch (error) {
       formSubmitMsg.value = error.message;
-      console.error(error.message);
       submitStatus.value = "failed";
     }
-  } else {
-    console.log("not valid");
   }
 };
 </script>
