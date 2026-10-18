@@ -4,7 +4,17 @@ A small Vue 3 app for creating and managing private customer records. It uses Fi
 
 **Live demo:** [customer-registery-mehdispace.netlify.app](https://customer-registery-mehdispace.netlify.app/)
 
-![Customer Registry sign-in screen](./screenshots/customer-registry.png)
+## Preview
+
+The screenshots use fictional demo values.
+
+| Sign in | Empty customer list |
+| --- | --- |
+| <img src="./screenshots/customer-registry-sign-in.png" alt="Customer Registry sign-in screen" width="480"> | <img src="./screenshots/customer-registry-empty-list.png" alt="Empty customer list in dark theme" width="480"> |
+
+| Customer list | Add a customer |
+| --- | --- |
+| <img src="./screenshots/customer-registry-populated-list.png" alt="Customer list with fictional demo data" width="480"> | <img src="./screenshots/customer-registry-add-customer.png" alt="Add customer form with fictional demo data" width="480"> |
 
 ## Features
 
