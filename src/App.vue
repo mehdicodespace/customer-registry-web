@@ -1,7 +1,7 @@
 <template>
   <main class="min-h-screen py-6 sm:py-10">
-    <header v-if="!checkingSession && currentUser" class="mx-auto mb-8 flex w-11/12 max-w-7xl items-center justify-between">
-      <a href="/" class="flex items-center gap-3 rounded-lg focus:outline-none focus:ring-4 focus:ring-blue-100" aria-label="Customer Registry home">
+    <header v-if="!checkingSession" class="mx-auto mb-8 flex w-11/12 max-w-7xl items-center justify-between">
+      <a v-if="currentUser" href="/" class="flex items-center gap-3 rounded-lg focus:outline-none focus:ring-4 focus:ring-blue-100" aria-label="Customer Registry home">
         <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-700 text-white shadow-sm" aria-hidden="true">
           <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none">
             <path d="M4 7.5h16M6.5 4h11A2.5 2.5 0 0 1 20 6.5v11a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 17.5v-11A2.5 2.5 0 0 1 6.5 4Z" stroke="currentColor" stroke-width="1.6" />
@@ -14,7 +14,7 @@
         </span>
       </a>
       <div class="flex items-center gap-3">
-        <p class="hidden text-sm text-slate-500 dark:text-slate-400 sm:block"><span class="sr-only">Signed in as </span>{{ currentUser.email }}</p>
+        <p v-if="currentUser" class="hidden text-sm text-slate-500 dark:text-slate-400 sm:block"><span class="sr-only">Signed in as </span>{{ currentUser.email }}</p>
         <button
           type="button"
           class="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-slate-50 focus:outline-none focus:ring-4 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-900 dark:text-amber-300 dark:hover:bg-slate-800 dark:focus:ring-slate-700"
@@ -30,7 +30,7 @@
             <path d="M20.2 15.4A8.5 8.5 0 0 1 8.6 3.8 8.5 8.5 0 1 0 20.2 15.4Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" />
           </svg>
         </button>
-        <button type="button" class="h-10 rounded-lg border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-4 focus:ring-slate-200 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800 dark:focus:ring-slate-700" @click="signOut">Sign out</button>
+        <button v-if="currentUser" type="button" class="h-10 rounded-lg border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-4 focus:ring-slate-200 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800 dark:focus:ring-slate-700" @click="signOut">Sign out</button>
       </div>
     </header>
 
