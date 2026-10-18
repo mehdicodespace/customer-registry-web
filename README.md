@@ -2,6 +2,8 @@
 
 A small Vue 3 app for creating and managing private customer records. It uses Firebase Authentication for accounts and Firebase Realtime Database for each user's records.
 
+**Live demo:** [customer-registery-mehdispace.netlify.app](https://customer-registery-mehdispace.netlify.app/)
+
 ![Customer Registry sign-in screen](./screenshots/customer-registry.png)
 
 ## Features
