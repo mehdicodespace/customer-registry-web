@@ -1,6 +1,6 @@
 <template>
   <div class="space-y-1.5">
-    <label :for="props.name" class="block text-sm font-medium text-slate-700">
+    <label :for="props.name" class="block text-sm font-medium text-slate-700 dark:text-slate-300">
       {{ props.label }}
       <span class="text-rose-600" aria-hidden="true">*</span>
     </label>
@@ -15,13 +15,13 @@
       :aria-invalid="Boolean(props.errorMessage)"
       :aria-describedby="props.errorMessage ? `${props.name}-error` : props.hint ? `${props.name}-hint` : undefined"
       :placeholder="props.placeholder"
-      class="min-h-11 w-full rounded-lg border bg-white px-3 py-2 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:ring-4 disabled:bg-slate-50"
-      :class="props.errorMessage ? 'border-rose-400 focus:border-rose-600 focus:ring-rose-100' : 'border-slate-300 focus:border-blue-600 focus:ring-blue-100'"
+      class="min-h-11 w-full rounded-lg border bg-white px-3 py-2 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:ring-4 disabled:bg-slate-50 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500 dark:disabled:bg-slate-900"
+      :class="props.errorMessage ? 'border-rose-400 focus:border-rose-600 focus:ring-rose-100 dark:border-rose-700 dark:focus:ring-rose-950' : 'border-slate-300 focus:border-blue-600 focus:ring-blue-100 dark:border-slate-700 dark:focus:border-blue-400 dark:focus:ring-blue-950'"
       @input="emit('update:modelValue', ($event.target as HTMLInputElement).value)"
       @blur="emit('blur')"
     />
     <p v-if="props.errorMessage" :id="`${props.name}-error`" class="text-xs text-rose-700" role="alert">{{ props.errorMessage }}</p>
-    <p v-else-if="props.hint" :id="`${props.name}-hint`" class="text-xs text-slate-500">{{ props.hint }}</p>
+    <p v-else-if="props.hint" :id="`${props.name}-hint`" class="text-xs text-slate-500 dark:text-slate-400">{{ props.hint }}</p>
   </div>
 </template>
 

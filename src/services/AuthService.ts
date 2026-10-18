@@ -1,76 +1,82 @@
+import {
+  createUserWithEmailAndPassword,
+  onAuthStateChanged,
+  sendPasswordResetEmail,
+  signInWithEmailAndPassword,
+  signOut,
+  User,
+} from "firebase/auth";
+import { auth } from "@/services/firebase";
+
 export interface AuthUser {
   id: string;
   email: string;
 }
 
-interface AuthResponse {
-  token: string;
-  user: AuthUser;
-}
+const toAuthUser = (user: User): AuthUser => ({
+  id: user.uid,
+  email: user.email || "",
+});
 
-const SESSION_KEY = "customer-registry-session";
-const SESSION_EXPIRY_KEY = "customer-registry-session-expiry";
-
-const getApiBaseUrl = (): string => {
-  const baseUrl = process.env.VUE_APP_API_BASE_URL;
-  if (!baseUrl) {
-    throw new Error("Set VUE_APP_API_BASE_URL in the frontend .env file.");
-  }
-  return baseUrl.replace(/\/$/, "");
-};
-
-const request = async (path: string, body: Record<string, string>) => {
-  const response = await fetch(`${getApiBaseUrl()}${path}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
-  const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(data.error || "Could not sign in.");
-  return data as AuthResponse;
+const authError = (error: unknown): Error => {
+  const code = (error as { code?: string })?.code;
+  const messages: Record<string, string> = {
+    "auth/email-already-in-use": "An account already exists for this email.",
+    "auth/invalid-credential": "The email or password is incorrect.",
+    "auth/invalid-email": "Enter a valid email address.",
+    "auth/weak-password": "Choose a stronger password with at least 12 characters.",
+    "auth/too-many-requests": "Too many attempts. Wait a moment and try again.",
+    "auth/network-request-failed": "Could not reach Firebase. Check your connection and try again.",
+    "auth/user-disabled": "This account has been disabled.",
+  };
+  return new Error((code && messages[code]) || "Authentication could not be completed. Please try again.");
 };
 
 const AuthService = {
-  getToken(): string | null {
-    const expiresAt = Number(sessionStorage.getItem(SESSION_EXPIRY_KEY));
-    if (!expiresAt || Date.now() >= expiresAt) {
-      this.signOut();
-      return null;
-    }
-    return sessionStorage.getItem(SESSION_KEY);
-  },
-
   async signIn(email: string, password: string): Promise<AuthUser> {
-    const session = await request("/auth/login", { email, password });
-    sessionStorage.setItem(SESSION_KEY, session.token);
-    sessionStorage.setItem(SESSION_EXPIRY_KEY, String(Date.now() + 8 * 60 * 60 * 1000));
-    return session.user;
+    try {
+      const credential = await signInWithEmailAndPassword(auth, email, password);
+      return toAuthUser(credential.user);
+    } catch (error) {
+      throw authError(error);
+    }
   },
 
   async signUp(email: string, password: string): Promise<AuthUser> {
-    const session = await request("/auth/register", { email, password });
-    sessionStorage.setItem(SESSION_KEY, session.token);
-    sessionStorage.setItem(SESSION_EXPIRY_KEY, String(Date.now() + 8 * 60 * 60 * 1000));
-    return session.user;
-  },
-
-  async getCurrentUser(): Promise<AuthUser> {
-    const token = this.getToken();
-    if (!token) throw new Error("Sign in to continue.");
-    const response = await fetch(`${getApiBaseUrl()}/auth/me`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    const data = await response.json().catch(() => ({}));
-    if (!response.ok) {
-      if (response.status === 401) this.signOut();
-      throw new Error(data.error || "Your session has expired.");
+    try {
+      const credential = await createUserWithEmailAndPassword(auth, email, password);
+      return toAuthUser(credential.user);
+    } catch (error) {
+      throw authError(error);
     }
-    return data.user as AuthUser;
   },
 
-  signOut(): void {
-    sessionStorage.removeItem(SESSION_KEY);
-    sessionStorage.removeItem(SESSION_EXPIRY_KEY);
+  async sendPasswordReset(email: string): Promise<void> {
+    try {
+      await sendPasswordResetEmail(auth, email);
+    } catch (error) {
+      throw authError(error);
+    }
+  },
+
+  getCurrentUser(): Promise<AuthUser | null> {
+    return new Promise((resolve, reject) => {
+      const unsubscribe = onAuthStateChanged(
+        auth,
+        (user) => {
+          unsubscribe();
+          resolve(user ? toAuthUser(user) : null);
+        },
+        (error) => {
+          unsubscribe();
+          reject(authError(error));
+        }
+      );
+    });
+  },
+
+  async signOut(): Promise<void> {
+    await signOut(auth);
   },
 };
 

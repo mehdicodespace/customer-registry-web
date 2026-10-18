@@ -1,45 +1,78 @@
-# Customer Registry Web
+# Customer Registry
 
-Customer Registry is a small Vue 3 and TypeScript app for keeping customer contact records. I built it as a full-stack portfolio project: the browser handles the interface and form feedback, while a separate API handles authentication, validation, and persistence.
+A small Vue 3 app for creating and managing private customer records. It uses Firebase Authentication for accounts and Firebase Realtime Database for each user's records.
 
 ![Customer Registry sign-in screen](./screenshots/customer-registry.png)
 
-## What it does
+## Features
 
-- Create an account and manage a private customer list.
+- Register with email and password, sign in, and request a password reset email.
 - Add, search, edit, and remove customer records.
-- Validate names, dates, phone numbers, email addresses, and account-number format.
-- Mask account numbers in the list view.
+- Switch between light and dark themes; the choice is saved in the browser.
+- Validate contact details in the form and prevent duplicate records in the current user's list.
+- Mask bank account numbers in the list view.
+- Store each user's records under their Firebase Auth UID; database rules restrict reads and writes to that user.
 
-## Frontend structure
+## How the app is organized
 
 ```text
 src/
-  components/       Sign-in, customer list, form fields
-  domain/           Customer model and repository
-  services/         Authentication and HTTP clients
-  utils/            Client-side validation
-tests/              Vue unit tests
+  components/       Vue views and reusable form fields
+  domain/
+    entities/       Customer model
+    repositories/   In-memory UI state and CRUD coordination
+  services/         Firebase Auth, database operations, and app setup
+  utils/            Client-side validation helpers
+tests/              Component and validation tests
 screenshots/        README preview
 ```
 
-The components manage presentation and user input. `CustomerRepository` owns the in-memory list and coordinates CRUD operations. `RestApiService` handles customer HTTP requests; `AuthService` handles the short-lived session token. The API performs its own validation and authorization, so browser checks are there for quick feedback, not as a security boundary.
-
-The backend is the separate `customer-registry-api` repository. Keeping it separate allows independent releases and keeps database credentials out of the browser project.
+The components handle presentation and user input. `CustomerRepository` owns the current list state and applies duplicate checks. `CustomerDataService` maps customer operations to Realtime Database calls. `AuthService` wraps Firebase sign-in, registration, and password reset. Firebase rules provide the access boundary; browser validation is only for a faster form experience.
 
 ## Run locally
 
-Use Node.js 20 and npm.
+Use Node.js 20 or newer.
 
 ```sh
 npm ci
+```
+
+Create a `.env` file in the project root using `.env.example` as a template. Fill it with the Firebase web app values from **Firebase Console → Project settings → Your apps**. The database URL is shown at the top of the Realtime Database **Data** page.
+
+```sh
 cp .env.example .env
 npm run serve
 ```
 
-Set `VUE_APP_API_BASE_URL` in `.env` to the API address, normally `http://localhost:4000/api`. This is only a public API address. Vue CLI embeds variables prefixed with `VUE_APP_` in the downloaded JavaScript, so do not put a private key, JWT secret, or database URL there. The root `.env` is ignored by Git.
+On Windows PowerShell, copy the template with `Copy-Item .env.example .env`.
 
-Useful commands:
+The Firebase web configuration is included in the built browser code, so its API key is a client identifier, not a private server credential. Do not put service-account keys, private keys, or administrator credentials in this app. Access to records is controlled by Firebase Authentication and Realtime Database rules.
+
+## Firebase project setup
+
+This app expects:
+
+1. Firebase Authentication with the **Email/Password** provider enabled.
+2. A Realtime Database in locked mode with these rules:
+
+```json
+{
+  "rules": {
+    "customers": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    }
+  }
+}
+```
+
+3. `localhost` and the deployed site domain listed in Authentication's **Authorized domains**.
+
+Passwords are managed by Firebase Authentication and are never written to the database. The password reset control sends Firebase's standard reset email. If someone loses access to both their password and email account, recovery needs a trusted project administrator through Firebase Console; there is no admin password editor in the public app.
+
+## Build and checks
 
 ```sh
 npm run lint
@@ -47,12 +80,10 @@ npm run build
 npm run test:unit
 ```
 
-## Deploy
+## Deploy the site
 
-The intended demo setup is Netlify for this site, Render for the Express API, and Neon for Postgres. The `netlify.toml` file sets the Vue build command and `dist` publish folder. In Netlify, set `VUE_APP_API_BASE_URL` to `https://<your-api>.onrender.com/api` and deploy again.
+The existing `netlify.toml` configures the Vue CLI build and `dist` output. In Netlify, connect the GitHub repository and add the five `VUE_APP_FIREBASE_*` values from your local `.env` under **Site configuration → Environment variables**, then deploy. Add the Netlify site domain in Firebase Authentication's authorized domains. Firebase client config is public in the deployed JavaScript; database rules must remain scoped to the signed-in UID.
 
-The API's own README has the backend steps. In short: create a Neon database, push the API source to a GitHub repository named `customer-registry-api`, deploy it as a Render web service, then set the API's allowed origin to your Netlify URL. Netlify's Vue CLI guide explains the build settings and the public nature of `VUE_APP_` variables: [Vue CLI on Netlify](https://docs.netlify.com/build/frameworks/framework-setup-guides/vue-cli/).
+## Demo data
 
-## Notes before sharing
-
-This is a portfolio demo, not a system for real customer or financial information. Password reset and email verification are not implemented; the browser keeps its bearer token in session storage; account numbers are stored as ordinary database text and only masked in the list UI. Use fictional records. Keep server secrets in the API's local `.env` or the API host's secret settings, and keep `.env` files out of Git.
+Use fictional information only. This is a portfolio example, not a system for real customer or financial records. Bank account values are stored as entered and only masked in the list display; this project does not encrypt them or implement regulated data controls.

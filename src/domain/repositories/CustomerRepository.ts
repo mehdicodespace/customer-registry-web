@@ -1,6 +1,6 @@
 import { ref, Ref } from "vue";
 import { Customer } from "@/domain/entities/Customer";
-import RestApiService from "@/services/RestApiService";
+import CustomerDataService from "@/services/CustomerDataService";
 
 class CustomerRepository {
   private customers: Ref<Customer[]> = ref([]);
@@ -10,7 +10,7 @@ class CustomerRepository {
   async loadCustomers(): Promise<void> {
     this.getCustomersLoading.value = true;
     try {
-      this.customers.value = await RestApiService.getAllCustomers();
+      this.customers.value = await CustomerDataService.getAllCustomers();
     } finally {
       this.getCustomersLoading.value = false;
     }
@@ -24,7 +24,7 @@ class CustomerRepository {
     this.modalLoading.value = true;
     try {
       if (!this.isUnique(customer)) throw new Error("Duplicate customer found.");
-      const createdCustomer = await RestApiService.createCustomer(customer);
+      const createdCustomer = await CustomerDataService.createCustomer(customer);
       this.customers.value.push(createdCustomer);
     } finally {
       this.modalLoading.value = false;
@@ -32,7 +32,7 @@ class CustomerRepository {
   }
 
   async removeCustomer(customer: Customer): Promise<void> {
-    await RestApiService.deleteCustomer(customer._uuid);
+    await CustomerDataService.deleteCustomer(customer._uuid);
     this.customers.value = this.customers.value.filter(
       (existing) => existing._uuid !== customer._uuid
     );
@@ -42,7 +42,7 @@ class CustomerRepository {
     this.modalLoading.value = true;
     try {
       if (!this.isUnique(updatedCustomer)) throw new Error("Duplicate customer found.");
-      await RestApiService.updateCustomer(updatedCustomer);
+      await CustomerDataService.updateCustomer(updatedCustomer);
       const index = this.customers.value.findIndex(
         (existing) => existing._uuid === updatedCustomer._uuid
       );

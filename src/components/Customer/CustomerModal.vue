@@ -5,17 +5,17 @@
       role="dialog"
       aria-modal="true"
       :aria-labelledby="titleId"
-      class="relative flex max-h-[calc(100vh-1.5rem)] w-full max-w-2xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl shadow-slate-950/20 sm:max-h-[calc(100vh-3rem)]"
+      class="relative flex max-h-[calc(100vh-1.5rem)] w-full max-w-2xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl shadow-slate-950/20 dark:bg-slate-900 sm:max-h-[calc(100vh-3rem)]"
     >
-      <header class="flex items-start justify-between border-b border-slate-100 px-5 py-5 sm:px-7">
+      <header class="flex items-start justify-between border-b border-slate-100 px-5 py-5 dark:border-slate-800 sm:px-7">
         <div>
-          <p class="text-xs font-bold uppercase tracking-[0.16em] text-blue-700">Customer details</p>
-          <h2 :id="titleId" class="mt-1 text-xl font-semibold tracking-tight text-slate-950">
+          <p class="text-xs font-bold uppercase tracking-[0.16em] text-blue-700 dark:text-blue-300">Customer details</p>
+          <h2 :id="titleId" class="mt-1 text-xl font-semibold tracking-tight text-slate-950 dark:text-white">
             {{ type === "create" ? "Add a customer" : "Edit customer" }}
           </h2>
-          <p class="mt-1 text-sm text-slate-500">Fields marked with * are required.</p>
+          <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Fields marked with * are required.</p>
         </div>
-        <button type="button" aria-label="Close" class="rounded-lg p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-800 focus:outline-none focus:ring-4 focus:ring-slate-200" @click="close">
+        <button type="button" aria-label="Close" class="rounded-lg p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-800 focus:outline-none focus:ring-4 focus:ring-slate-200 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100 dark:focus:ring-slate-700" @click="close">
           <svg aria-hidden="true" class="h-5 w-5" viewBox="0 0 20 20" fill="none">
             <path d="m5 5 10 10M15 5 5 15" stroke="currentColor" stroke-linecap="round" stroke-width="1.7" />
           </svg>
@@ -41,12 +41,12 @@
           />
         </div>
 
-        <p v-if="formMessage" :class="success ? 'border-emerald-200 bg-emerald-50 text-emerald-800' : 'border-rose-200 bg-rose-50 text-rose-800'" class="mx-5 mb-5 rounded-lg border px-4 py-3 text-sm sm:mx-7" :role="success ? 'status' : 'alert'">
+        <p v-if="formMessage" :class="success ? 'border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950/60 dark:text-emerald-200' : 'border-rose-200 bg-rose-50 text-rose-800 dark:border-rose-900 dark:bg-rose-950/60 dark:text-rose-200'" class="mx-5 mb-5 rounded-lg border px-4 py-3 text-sm sm:mx-7" :role="success ? 'status' : 'alert'">
           {{ formMessage }}
         </p>
 
-        <footer class="flex flex-col-reverse gap-3 border-t border-slate-100 bg-slate-50/70 px-5 py-4 sm:flex-row sm:justify-end sm:px-7">
-          <button type="button" class="h-10 rounded-lg border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-4 focus:ring-slate-200" @click="close">
+        <footer class="flex flex-col-reverse gap-3 border-t border-slate-100 bg-slate-50/70 px-5 py-4 dark:border-slate-800 dark:bg-slate-950/60 sm:flex-row sm:justify-end sm:px-7">
+          <button type="button" class="h-10 rounded-lg border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-4 focus:ring-slate-200 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800 dark:focus:ring-slate-700" @click="close">
             Cancel
           </button>
           <button type="submit" :disabled="modalLoading || success" class="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-blue-700 px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-200 disabled:cursor-wait disabled:opacity-60">
